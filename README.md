@@ -1,2 +1,2 @@
 # Video Editor 
-A simple video editor
+A simple video editing application.
