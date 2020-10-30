@@ -1,0 +1,3 @@
+/home/raspy-wasp/Code/VideoEditor/src/CMakeFiles/rebuild_cache.dir
+/home/raspy-wasp/Code/VideoEditor/src/CMakeFiles/edit_cache.dir
+/home/raspy-wasp/Code/VideoEditor/src/CMakeFiles/VideoEditor.dir

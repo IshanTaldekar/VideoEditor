@@ -1,0 +1,1 @@
+/usr/bin/c++   -pthread   CMakeFiles/VideoEditor.dir/VideoEditor.cpp.o  -o VideoEditor   -L/usr/local/lib  -Wl,-rpath,/usr/local/lib -L/usr/local/lib -pthread -lwx_gtk3u_core-3.1 -lwx_baseu-3.1 
