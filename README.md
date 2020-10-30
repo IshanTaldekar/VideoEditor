@@ -1,2 +1,2 @@
 # Video Editor 
-A simple video editing application.
+A video processing application under construction.
