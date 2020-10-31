@@ -1,74 +1,72 @@
 #include "VideoEditorHome.h"
 
 BEGIN_EVENT_TABLE(VideoEditorHome, wxFrame)
-EVT_MENU(MENU_New, VideoEditorHome::NewFile)
-EVT_MENU(MENU_Open, VideoEditorHome::OpenFile)
-EVT_MENU(MENU_Close, VideoEditorHome::CloseFile)
-EVT_MENU(MENU_Save, VideoEditorHome::SaveFile)
-EVT_MENU(MENU_SaveAs, VideoEditorHome::SaveFileAs)
-EVT_MENU(MENU_Quit, VideoEditorHome::Quit)
+EVT_MENU(MENU_Reset, VideoEditorHome::OnOptionReset)
+EVT_MENU(MENU_ChangeOutputDir, VideoEditorHome::OnOptionChangeOutputDir)
+EVT_MENU(MENU_About, VideoEditorHome::OnOptionAbout)
+EVT_MENU(MENU_Help, VideoEditorHome::OnOptionHelp)
+EVT_MENU(MENU_Exit, VideoEditorHome::OnOptionExit)
+EVT_BUTTON(BUTTON_Execute, VideoEditorHome::OnExecute)
+EVT_BUTTON(BUTTON_Cancel, VideoEditorHome::OnCancel)
 END_EVENT_TABLE()
 
 VideoEditorHome::VideoEditorHome(const wxString & title, const wxPoint & pos, const wxSize & size): wxFrame((wxFrame*) nullptr, wxID_ANY, title, pos, size) {
 
     CreateStatusBar(2);  // number describes how many messages can be displayed in the status bar at a time.
 
-    HomeEditBox = new wxTextCtrl(this, TEXT_Home, "Video Display", wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_RICH, wxDefaultValidator, wxTextCtrlNameStr);
-    MainMenu = new wxMenuBar();
-    wxMenu *FileMenu = new wxMenu();
-    wxMenu *Templates = new wxMenu();
+    FileMenuBar = new wxMenuBar();
+    wxMenu *OptionsMenu = new wxMenu();
 
+    OptionsMenu->Append(MENU_Reset, "&Reset Selection", "Clear input choices");
+    OptionsMenu->Append(MENU_ChangeOutputDir, "&Edit Output Folder", "Change output folder");
+    OptionsMenu->Append(MENU_About, "&About", "About");
+    OptionsMenu->Append(MENU_Help, "&Help", "Help");
+    OptionsMenu->Append(MENU_Exit, "&Quit", "Close video editor");
 
-    FileMenu->Append(MENU_New, "&New", "Create new video");
-    FileMenu->Append(MENU_Open, "&Open", "Open video file");
-    FileMenu->Append(MENU_Save, "&Save", "Save video file");
-    FileMenu->Append(MENU_SaveAs, "&Save As", "Save video file under a new file name");
-    FileMenu->Append(MENU_Close, "&Close", "Close current stream");
-    FileMenu->Append(MENU_Quit, "&Quit", "Quit");
+    FileMenuBar->Append(OptionsMenu, "&File");
+    ExecuteButton = new wxButton(this, BUTTON_Execute, "&Execute", wxPoint(0, 10));
+    CancelButton = new wxButton(this, BUTTON_Cancel, "&Cancel", wxPoint(100, 10));
 
-    Templates->Append(MENU_Template1, "&Generate Video", "Intro + Video + Outro");
-    Templates->Append(MENU_Template2, "&Stich Videos", "Video + Video + Video + ...");
-
-    MainMenu->Append(FileMenu, "&File");
-    MainMenu->Append(Templates, "&Templates");
-
-
-    SetMenuBar(MainMenu);
-
+    SetMenuBar(FileMenuBar);
     Maximize();
-}
-
-void VideoEditorHome::OpenFile(wxCommandEvent& WXUNUSED(event)) {
-
-    HomeEditBox->LoadFile(wxT(".gitignore"));
-}
-
-void VideoEditorHome::NewFile(wxCommandEvent& WXUNUSED(event)) {
 
 }
 
+void VideoEditorHome::OnOptionReset(wxCommandEvent &event) {
 
-void VideoEditorHome::CloseFile(wxCommandEvent& WXUNUSED(event)) {
-
-    HomeEditBox->Clear();
 
 }
 
-void VideoEditorHome::SaveFile(wxCommandEvent& WXUNUSED(event)) {
+void VideoEditorHome::OnOptionChangeOutputDir(wxCommandEvent &event) {
 
-    HomeEditBox->SaveFile(wxT("base.h"));
-
-}
-
-void VideoEditorHome::SaveFileAs(wxCommandEvent& WXUNUSED(event)) {
 
 }
 
-void VideoEditorHome::Quit(wxCommandEvent& WXUNUSED(event)) {
+void VideoEditorHome::OnOptionAbout(wxCommandEvent &event) {
+
+
+}
+
+void VideoEditorHome::OnOptionHelp(wxCommandEvent &event) {
+
+
+}
+
+void VideoEditorHome::OnOptionExit(wxCommandEvent &event) {
+
     Close(true);
+
 }
 
+void VideoEditorHome::OnExecute(wxCommandEvent &event) {
 
+
+}
+
+void VideoEditorHome::OnCancel(wxCommandEvent &event) {
+
+
+}
 
 
 
