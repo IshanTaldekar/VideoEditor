@@ -15,11 +15,14 @@ EVT_FILEPICKER_CHANGED(PICKERPAGE_AudioFile, VideoEditorHome::OnAudioFileChange)
 END_EVENT_TABLE()
 
 VideoEditorHome::VideoEditorHome(const wxString & title, const wxPoint & pos, const wxSize & size): wxFrame((wxFrame*) nullptr, wxID_ANY, title, pos, size) {
+    /* Create GUI content */
 
     CreateStatusBar(2);  // number describes how many messages can be displayed in the status bar at a time.
 
     HomeMenuBar = new wxMenuBar();
-    wxMenu *OptionsMenu = new wxMenu();
+
+    /* Create drop-down menu list - options */
+    wxMenu* OptionsMenu = new wxMenu();
 
     OptionsMenu->Append(MENU_Reset, "&Reset Selections", "Clear input choices");
     OptionsMenu->Append(MENU_ChangeOutputDir, "&Change Output Folder", "Edit where the output video will be written to");
@@ -30,6 +33,7 @@ VideoEditorHome::VideoEditorHome(const wxString & title, const wxPoint & pos, co
 
     SetMenuBar(HomeMenuBar);
 
+    /* Add File browse/pick buttons */
     CreatePickers();
 
     boxLeft = new wxBoxSizer(wxVERTICAL);
@@ -56,18 +60,20 @@ VideoEditorHome::VideoEditorHome(const wxString & title, const wxPoint & pos, co
     boxLeft->Add(AudioFileBox, wxSizerFlags().Expand().Border());
     boxLeft->AddStretchSpacer();
 
-    // ADD GAUGE
+    /* Add progression gauge */
     ProgressGaugeBox = new wxBoxSizer(wxVERTICAL);
+
     CreateGauge();
+
     boxLeft->Add(ProgressGaugeBox, wxSizerFlags().Expand().Border());
     boxLeft->AddStretchSpacer();
 
-
+    /* Add run and execute buttons */
     ExecuteButton = new wxButton(this, BUTTON_Execute, "&Run", wxDefaultPosition);
     CancelButton = new wxButton(this, BUTTON_Cancel, "&Cancel", wxDefaultPosition);
 
-    // ExecuteButton->Enable(false);
-    CancelButton->Enable(false);
+    ExecuteButton->Enable(false);  // Cannot be used until all required files are available
+    CancelButton->Enable(false);  // Cannot be used until ExecuteButton has been clicked
 
     boxRight = new wxBoxSizer(wxVERTICAL);
 
@@ -76,7 +82,7 @@ VideoEditorHome::VideoEditorHome(const wxString & title, const wxPoint & pos, co
     boxRight->Add(CancelButton, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 30);
     boxRight->AddStretchSpacer();
 
-    wxSizer *sz = new wxBoxSizer(wxHORIZONTAL);
+    wxSizer* sz = new wxBoxSizer(wxHORIZONTAL);
     sz->Add(boxLeft, 1, wxGROW | wxALL, 10);
     sz->Add(boxRight, 0, wxGROW | wxALL, 10);
     SetSizer(sz);
@@ -85,6 +91,7 @@ VideoEditorHome::VideoEditorHome(const wxString & title, const wxPoint & pos, co
 
 void VideoEditorHome::OnOptionReset(wxCommandEvent &event) {
 
+    /* TODO: display error message if executing scripts */
     RecreatePickers();
     CreateGauge();
 
@@ -113,19 +120,14 @@ void VideoEditorHome::OnOptionExit(wxCommandEvent &event) {
 
 void VideoEditorHome::OnExecute(wxCommandEvent &event) {
 
-    // Have Progress Gauge Pulse
+    // TODO: Have Progress Gauge periodically Pulse w ProgressGauge->Pulse();
+    // TODO: Make video
 
 }
 
 void VideoEditorHome::OnCancel(wxCommandEvent &event) {
 
     ProgressGauge->SetValue(0);
-
-}
-
-
-void VideoEditorHome::CreateContent() {
-
 
 }
 
@@ -168,15 +170,7 @@ void VideoEditorHome::RecreatePickers() {
 
 }
 
-void VideoEditorHome::OnButtonSetDir(wxCommandEvent& WXUNUSED(event)) {
-
-
-
-}
-
 void VideoEditorHome::OnIntroFileChange(wxFileDirPickerEvent& event) {
-
-
 
 
 }

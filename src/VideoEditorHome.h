@@ -31,11 +31,9 @@ public:
 
 private:
 
-    wxMenuBar *HomeMenuBar;
-
-    wxGauge* ProgressGauge {nullptr};
-
-    wxButton* ExecuteButton;
+    wxMenuBar *HomeMenuBar;  // Drop-down menu
+    wxGauge* ProgressGauge {nullptr};  // Progression Gauge
+    wxButton* ExecuteButton;  // Run Button
     wxButton* CancelButton;
 
     /* File browse/choose buttons */
@@ -53,7 +51,7 @@ private:
     wxBoxSizer* AudioFileBox;
     wxSizer* ProgressGaugeBox;
 
-    bool processing_flag {false};  // REMOVE
+    bool processing_flag {false};  // TODO: REMOVE
 
     void OnOptionReset(wxCommandEvent& event);
     void OnOptionChangeOutputDir(wxCommandEvent& event);
@@ -62,7 +60,6 @@ private:
     void OnOptionExit(wxCommandEvent& event);
     void OnExecute(wxCommandEvent& event);
     void OnCancel(wxCommandEvent& event);
-    void CreateContent();
     void CreatePickers();
     void RecreatePickers();
     void UpdateFilePickerMode();
@@ -72,7 +69,6 @@ private:
     void OnAudioFileChange(wxFileDirPickerEvent& event);
     void OnCheckBox(wxCommandEvent& event);
     void OnButtonReset(wxCommandEvent& event);
-    void OnButtonSetDir(wxCommandEvent& event);
     void CreateGauge();
 
     DECLARE_EVENT_TABLE()
