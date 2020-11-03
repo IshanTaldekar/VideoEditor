@@ -5,6 +5,10 @@
 #define wxUSE_FILEPICKERCTRL 1
 #endif
 
+#ifndef wxUSE_STATLINE
+#define wxUSE_STATLINE 1
+#endif
+
 #include <wx/wxprec.h>
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
@@ -12,14 +16,24 @@
     #include <wx/log.h>
     #include <wx/radiobox.h>
     #include <wx/textctrl.h>
+    #include <wx/sizer.h>
+    #include <wx/stattext.h>
+    #include <wx/checkbox.h>
+    #include <wx/imaglist.h>
+    #include <wx/filepicker.h>
+    #include <wx/filedlg.h>
+    #include <wx/statline.h>
 #endif
 
-#include <wx/sizer.h>
-#include <wx/stattext.h>
-#include <wx/checkbox.h>
-#include <wx/imaglist.h>
-#include <wx/filepicker.h>
-#include <wx/filedlg.h>
+#include <iostream>
+using std::cout;
+using std::endl;
+
+#include <string>
+using std::string;
+
+#include <fstream>
+using std::ofstream;
 
 class VideoEditorHome : public wxFrame {
 
@@ -31,10 +45,12 @@ public:
 
 private:
 
-    wxMenuBar *HomeMenuBar;  // Drop-down menu
+    wxMenuBar *HomeMenuBar;  // Drop-down menu bar
     wxGauge* ProgressGauge {nullptr};  // Progression Gauge
     wxButton* ExecuteButton;  // Run Button
-    wxButton* CancelButton;
+    wxButton* LoadButton;
+    wxTimer* ProgressGaugeTimer {nullptr};  // Simulates gauge progress
+    wxTextCtrl* WordList;
 
     /* File browse/choose buttons */
     wxFilePickerCtrl* IntroFilePicker {nullptr};
@@ -43,15 +59,16 @@ private:
     wxFilePickerCtrl* AudioFilePicker {nullptr};
 
     /* Widget placement */
-    wxSizer* boxRight;
-    wxBoxSizer* boxLeft;
+    wxBoxSizer* RightBox;
+    wxBoxSizer* LeftBox;
     wxBoxSizer* IntroFileBox;
     wxBoxSizer* BackgroundFileBox;
     wxBoxSizer* OutroFileBox;
     wxBoxSizer* AudioFileBox;
+    wxBoxSizer* FileBrowsersBox;
+    wxBoxSizer* WordListBox;
+    wxStaticBoxSizer* TextBox;
     wxSizer* ProgressGaugeBox;
-
-    bool processing_flag {false};  // TODO: REMOVE
 
     void OnOptionReset(wxCommandEvent& event);
     void OnOptionChangeOutputDir(wxCommandEvent& event);
@@ -70,6 +87,10 @@ private:
     void OnCheckBox(wxCommandEvent& event);
     void OnButtonReset(wxCommandEvent& event);
     void CreateGauge();
+    void GaugeTimer(wxCommandEvent& event);
+    void ProgressGaugePulse(wxTimerEvent& event);
+    void StartTimer();
+    void StopTimer();
 
     DECLARE_EVENT_TABLE()
 
@@ -83,8 +104,9 @@ enum {
     MENU_Help,
     MENU_Exit,
     BUTTON_Execute,
-    BUTTON_Cancel,
+    BUTTON_LOAD,
     GAUGE_ProgressGauge,
+    GAUGE_Timer,
     PICKERPAGE_IntroFile,
     PICKERPAGE_BackgroundFile,
     PICKERPAGE_OutroFile,

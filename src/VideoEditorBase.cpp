@@ -5,7 +5,7 @@ wxIMPLEMENT_APP(VideoEditingApplication);  // tells wxWidgets to create an insta
 
 bool VideoEditingApplication::OnInit() {
 
-    main_frame = new VideoEditorHome(_("Video Maker"), wxDefaultPosition, wxSize(500, 650));
+    main_frame = new VideoEditorHome(_("Video Maker"), wxDefaultPosition, wxSize(750, 800));
     main_frame->Show(true);
     SetTopWindow(main_frame);  // set as main window.
 
