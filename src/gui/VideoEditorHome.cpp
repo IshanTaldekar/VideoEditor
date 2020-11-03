@@ -1,31 +1,29 @@
 #include "VideoEditorHome.h"
 
-
-/*
-
- TODO:
-
- * Add Save As option  (look into menu sample)
- * Add Save To option
- * Update RecreatePickers to match the application's styling
- * Update Event Table and Button assignments.
- * Look into static lines to highlight headers or maybe even wxPanels.
-
-*/
 BEGIN_EVENT_TABLE(VideoEditorHome, wxFrame)
 EVT_MENU(MENU_Reset, VideoEditorHome::OnOptionReset)
-EVT_MENU(MENU_ChangeOutputDir, VideoEditorHome::OnOptionChangeOutputDir)
 EVT_MENU(MENU_About, VideoEditorHome::OnOptionAbout)
 EVT_MENU(MENU_Help, VideoEditorHome::OnOptionHelp)
 EVT_MENU(MENU_Exit, VideoEditorHome::OnOptionExit)
 EVT_BUTTON(BUTTON_Execute, VideoEditorHome::OnExecute)
-EVT_BUTTON(BUTTON_LOAD, VideoEditorHome::OnCancel)
+EVT_BUTTON(BUTTON_LOAD, VideoEditorHome::OnLoad)
 EVT_FILEPICKER_CHANGED(PICKERPAGE_IntroFile, VideoEditorHome::OnIntroFileChange)
 EVT_FILEPICKER_CHANGED(PICKERPAGE_BackgroundFile, VideoEditorHome::OnBackgroundFileChange)
 EVT_FILEPICKER_CHANGED(PICKERPAGE_OutroFile, VideoEditorHome::OnOutroFileChange)
 EVT_FILEPICKER_CHANGED(PICKERPAGE_AudioFile, VideoEditorHome::OnAudioFileChange)
 EVT_TIMER(GAUGE_Timer, VideoEditorHome::ProgressGaugePulse)
 END_EVENT_TABLE()
+
+/*
+
+ TODO:
+
+ * Display dialog if Run is clicked before files are loaded
+ * Explore alternatives for save as prompt
+ * Add a dialog that pops up when user clicks load without selecting all input files
+ * OnOptionsReset: if process active - Initiate Dialog asking user to terminate any active processes first.
+
+*/
 
 VideoEditorHome::VideoEditorHome(const wxString & title, const wxPoint & pos, const wxSize & size): wxFrame((wxFrame*) nullptr, wxID_ANY, title, pos, size) {
     /* Create GUI content */
@@ -34,7 +32,6 @@ VideoEditorHome::VideoEditorHome(const wxString & title, const wxPoint & pos, co
 
     wxMenu* OptionsMenu = new wxMenu();  // Drop-down menu list - Options
     OptionsMenu->Append(MENU_Reset, "&Reset", "Clear input choices");
-    OptionsMenu->Append(MENU_ChangeOutputDir, "&Choose Output Directory", "Change save directory");  // make into sub-menu
     OptionsMenu->Append(MENU_About, "&About", "About Video Maker");
     OptionsMenu->Append(MENU_Help, "&Help", "Help");
     OptionsMenu->Append(MENU_Exit, "&Exit", "Quit Video Maker");
@@ -47,37 +44,28 @@ VideoEditorHome::VideoEditorHome(const wxString & title, const wxPoint & pos, co
     CreatePickers();
 
     IntroFileBox = new wxStaticBoxSizer(wxVERTICAL, this, "");
-    IntroFileBox->Add(new wxStaticText(this, wxID_ANY, "&    Choose Opening Video "), 0, wxEXPAND, 0);
-    wxStaticBoxSizer* IntroBox = new wxStaticBoxSizer(wxVERTICAL, this, "");
-    IntroBox->Add(IntroFilePicker, 1, wxEXPAND | wxALL, 10);
-    IntroFileBox->Add(IntroBox, 1, wxEXPAND | wxALL, 0);
-
-    // BackgroundFileBox = new wxStaticBoxSizer(wxVERTICAL, this, "Choose Background");
-    // BackgroundFileBox->Add(BackgroundFilePicker, 0, wxEXPAND | wxALL, 10);
+    IntroFileBox->Add(new wxStaticText(this, wxID_ANY, "&        Choose Opening Video "), 0, wxEXPAND, 0);
+    IntroPickerWrapperBox = new wxStaticBoxSizer(wxVERTICAL, this, "");
+    IntroPickerWrapperBox->Add(IntroFilePicker, 1, wxEXPAND | wxALL, 10);
+    IntroFileBox->Add(IntroPickerWrapperBox, 1, wxEXPAND | wxALL, 0);
 
     BackgroundFileBox = new wxStaticBoxSizer(wxVERTICAL, this, "");
-    BackgroundFileBox->Add(new wxStaticText(this, wxID_ANY, "&    Choose Background Video "), 0, wxEXPAND, 0);
-    wxStaticBoxSizer* BackgroundBox = new wxStaticBoxSizer(wxVERTICAL, this, "");
-    BackgroundBox->Add(BackgroundFilePicker, 1, wxEXPAND | wxALL, 10);
-    BackgroundFileBox->Add(BackgroundBox, 1, wxEXPAND | wxALL, 0);
-
-    // OutroFileBox = new wxStaticBoxSizer(wxVERTICAL, this, "Choose Outro.");
-    // OutroFileBox->Add(OutroFilePicker, 0, wxEXPAND | wxALL, 10);
+    BackgroundFileBox->Add(new wxStaticText(this, wxID_ANY, "&        Choose Background Video "), 0, wxEXPAND, 0);
+    BackgroundPickerWrapperBox = new wxStaticBoxSizer(wxVERTICAL, this, "");
+    BackgroundPickerWrapperBox->Add(BackgroundFilePicker, 1, wxEXPAND | wxALL, 10);
+    BackgroundFileBox->Add(BackgroundPickerWrapperBox, 1, wxEXPAND | wxALL, 0);
 
     OutroFileBox = new wxStaticBoxSizer(wxVERTICAL, this, "");
-    OutroFileBox->Add(new wxStaticText(this, wxID_ANY, "&    Choose Closing Video "), 0, wxEXPAND, 0);
-    wxStaticBoxSizer* OutroBox = new wxStaticBoxSizer(wxVERTICAL, this, "");
-    OutroBox->Add(OutroFilePicker, 1, wxEXPAND | wxALL, 10);
-    OutroFileBox->Add(OutroBox, 1, wxEXPAND | wxALL, 0);
-
-    // AudioFileBox = new wxStaticBoxSizer(wxVERTICAL, this, "Choose Audio");
-    // AudioFileBox->Add(AudioFilePicker, 0, wxEXPAND | wxALL, 10);
+    OutroFileBox->Add(new wxStaticText(this, wxID_ANY, "&        Choose Closing Video "), 0, wxEXPAND, 0);
+    OutroPickerWrapperBox = new wxStaticBoxSizer(wxVERTICAL, this, "");
+    OutroPickerWrapperBox->Add(OutroFilePicker, 1, wxEXPAND | wxALL, 10);
+    OutroFileBox->Add(OutroPickerWrapperBox, 1, wxEXPAND | wxALL, 0);
 
     AudioFileBox = new wxStaticBoxSizer(wxVERTICAL, this, "");
-    AudioFileBox->Add(new wxStaticText(this, wxID_ANY, "&    Choose Audio "), 0, wxEXPAND, 0);
-    wxStaticBoxSizer* AudioBox = new wxStaticBoxSizer(wxVERTICAL, this, "");
-    AudioBox->Add(AudioFilePicker, 1, wxEXPAND | wxALL, 10);
-    AudioFileBox->Add(AudioBox, 1, wxEXPAND | wxALL, 0);
+    AudioFileBox->Add(new wxStaticText(this, wxID_ANY, "&        Choose Audio "), 0, wxEXPAND, 0);
+    AudioPickerWrapperBox = new wxStaticBoxSizer(wxVERTICAL, this, "");
+    AudioPickerWrapperBox->Add(AudioFilePicker, 1, wxEXPAND | wxALL, 10);
+    AudioFileBox->Add(AudioPickerWrapperBox, 1, wxEXPAND | wxALL, 0);
 
     FileBrowsersBox = new wxBoxSizer(wxVERTICAL);  // Add file browsing buttons created above
     FileBrowsersBox->AddStretchSpacer();
@@ -89,16 +77,12 @@ VideoEditorHome::VideoEditorHome(const wxString & title, const wxPoint & pos, co
     FileBrowsersBox->AddSpacer(10);
     FileBrowsersBox->Add(AudioFileBox, wxSizerFlags().Expand().Border());
     FileBrowsersBox->AddStretchSpacer();
-
-    ProgressGaugeBox = new wxBoxSizer(wxVERTICAL);
-
-    CreateGauge();  // Create a progression gauge widget
+    FileBrowsersBox->AddSpacer(20);
 
     ExecuteButton = new wxButton(this, BUTTON_Execute, "&Run", wxDefaultPosition);
     LoadButton = new wxButton(this, BUTTON_LOAD, "&Load", wxDefaultPosition);
 
-    // wxStaticLine* LeftLine = new wxStaticLine(this);
-    // LeftLine->Show(true);
+    // ExecuteButton->Enable(false);  // Cannot be used until all required files are loaded
 
     wxBoxSizer* ButtonsBox = new wxBoxSizer(wxHORIZONTAL);
     ButtonsBox->AddStretchSpacer();
@@ -107,10 +91,13 @@ VideoEditorHome::VideoEditorHome(const wxString & title, const wxPoint & pos, co
     ButtonsBox->Add(ExecuteButton, 2, wxALIGN_CENTER | wxALL, 0);
     ButtonsBox->AddStretchSpacer();
 
+    ProgressGaugeBox = new wxBoxSizer(wxVERTICAL);
+
+    CreateGauge();  // Create a progression gauge widget
+
     LeftBox = new wxBoxSizer(wxVERTICAL);
     LeftBox->AddStretchSpacer();
     LeftBox->Add(FileBrowsersBox, wxSizerFlags().Expand().Border());
-    // LeftBox->Add(LeftLine, 0, wxEXPAND, 0);
     LeftBox->AddStretchSpacer();
     LeftBox->Add(ButtonsBox, wxSizerFlags().Expand().Border());
     LeftBox->AddStretchSpacer();
@@ -124,50 +111,46 @@ VideoEditorHome::VideoEditorHome(const wxString & title, const wxPoint & pos, co
     WordListBox->Add(WordList, 1, wxCENTER | wxEXPAND | wxALL | wxRESIZE_BORDER);
 
     TextBox = new wxStaticBoxSizer(wxVERTICAL, this, "");
-    TextBox->Add(new wxStaticText(this, wxID_ANY, "&    Word List"), 0, wxEXPAND , 0);
+    TextBox->Add(new wxStaticText(this, wxID_ANY, "&        Word List"), 0, wxEXPAND , 10);
     TextBox->AddSpacer(10);
     TextBox->Add(WordListBox, 1, wxCENTER | wxEXPAND | wxALL | wxRESIZE_BORDER);
 
-    // ExecuteButton->Enable(false);  // Cannot be used until all required files are available
-    // CancelButton->Enable(false);  // Cannot be used until ExecuteButton has been clicked
     RightBox = new wxBoxSizer(wxVERTICAL);
-    RightBox->AddStretchSpacer(2);
+    RightBox->AddStretchSpacer(1);
     RightBox->Add(TextBox, 8, wxCENTER | wxEXPAND | wxALL | wxRESIZE_BORDER);
-    RightBox->AddStretchSpacer(2);
+    RightBox->AddStretchSpacer(1);
 
-    // boxRight->Add(ExecuteButton, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 30);
-    // boxRight->Add(CancelButton, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 30);
-
-    wxSizer* sz = new wxBoxSizer(wxHORIZONTAL);
-    sz->Add(LeftBox, 3, wxGROW | wxALL, 10);
-    sz->Add(RightBox, 2, wxGROW | wxALL, 10);
-    sz->AddSpacer(10);
-    SetSizer(sz);
+    wxSizer* MainSizer = new wxBoxSizer(wxHORIZONTAL);
+    MainSizer->Add(LeftBox, 3, wxGROW | wxALL, 10);
+    MainSizer->Add(RightBox, 2, wxGROW | wxALL, 10);
+    MainSizer->AddSpacer(10);
+    SetSizer(MainSizer);
 
 }
+
 
 void VideoEditorHome::OnOptionReset(wxCommandEvent &event) {
 
-    /* TODO: display error message if executing scripts */
+    if (ExecuteButton->GetLabel() == "Cancel") return;  // Initiate Dialog asking user to terminate any active processes first.
+
     RecreatePickers();
     CreateGauge();
+    RecreateTextBox();
 
 }
 
-void VideoEditorHome::OnOptionChangeOutputDir(wxCommandEvent &event) {
-
-
-}
 
 void VideoEditorHome::OnOptionAbout(wxCommandEvent &event) {
 
 
 }
 
+
 void VideoEditorHome::OnOptionHelp(wxCommandEvent &event) {
 
 
 }
+
 
 void VideoEditorHome::OnOptionExit(wxCommandEvent &event) {
 
@@ -175,19 +158,26 @@ void VideoEditorHome::OnOptionExit(wxCommandEvent &event) {
 
 }
 
+
 void VideoEditorHome::OnExecute(wxCommandEvent &event) {
 
     GaugeTimer(event);
-
-    // TODO: Video Processing
-}
-
-void VideoEditorHome::OnCancel(wxCommandEvent &event) {
-
-    GaugeTimer(event);
-    ProgressGauge->SetValue(0);
+    // Read from TextCtrl
+    // Set Word List
+    // Call VideoProcessor
 
 }
+
+
+void VideoEditorHome::OnLoad(wxCommandEvent &event) {
+
+    // Validate input files
+    // Call random word generator
+    // Write to TextCtrl
+
+
+}
+
 
 void VideoEditorHome::CreatePickers() {
 
@@ -210,45 +200,50 @@ void VideoEditorHome::CreatePickers() {
 
 }
 
+
 void VideoEditorHome::RecreatePickers() {
 
-
-    IntroFileBox->Remove(0);
-    BackgroundFileBox->Remove(0);
-    OutroFileBox->Remove(0);
-    AudioFileBox->Remove(0);
+    IntroPickerWrapperBox->Remove(0);
+    BackgroundPickerWrapperBox->Remove(0);
+    OutroPickerWrapperBox->Remove(0);
+    AudioPickerWrapperBox->Remove(0);
 
     CreatePickers();
 
-    IntroFileBox->Insert(0, IntroFilePicker, 0, wxEXPAND | wxALL, 6);
-    BackgroundFileBox->Insert(0, BackgroundFilePicker, 0, wxEXPAND | wxALL, 6);
-    OutroFileBox->Insert(0, OutroFilePicker, 0, wxEXPAND | wxALL, 6);
-    AudioFileBox->Insert(0, AudioFilePicker, 0, wxEXPAND | wxALL, 6);
+    IntroPickerWrapperBox->Insert(0, IntroFilePicker, 1, wxEXPAND | wxALL, 10);
+    BackgroundPickerWrapperBox->Insert(0, BackgroundFilePicker, 0, wxEXPAND | wxALL, 10);
+    OutroPickerWrapperBox->Insert(0, OutroFilePicker, 1, wxEXPAND | wxALL, 10);
+    AudioPickerWrapperBox->Insert(0, AudioFilePicker, 1, wxEXPAND | wxALL, 10);
 
     LeftBox->Layout();
 
 }
+
 
 void VideoEditorHome::OnIntroFileChange(wxFileDirPickerEvent& event) {
 
 
 }
 
+
 void VideoEditorHome::OnOutroFileChange(wxFileDirPickerEvent &event) {
 
 
 }
+
 
 void VideoEditorHome::OnBackgroundFileChange(wxFileDirPickerEvent &event) {
 
 
 }
 
+
 void VideoEditorHome::OnAudioFileChange(wxFileDirPickerEvent &event) {
 
 
 
 }
+
 
 void VideoEditorHome::CreateGauge() {
 
@@ -266,10 +261,12 @@ void VideoEditorHome::CreateGauge() {
 
 }
 
+
 void VideoEditorHome::GaugeTimer(wxCommandEvent& event) {
 
-    if (event.GetId() == BUTTON_Execute) {
+    if (!ProgressGaugeTimer) {
 
+        ExecuteButton->SetLabel("Cancel");
         SetStatusText("Processing...");
         StartTimer();
 
@@ -277,11 +274,14 @@ void VideoEditorHome::GaugeTimer(wxCommandEvent& event) {
     else {
 
         StopTimer();
+        ExecuteButton->SetLabel("Run");
+        ProgressGauge->SetValue(0);
         SetStatusText("");
 
     }
 
 }
+
 
 void VideoEditorHome::StartTimer() {
 
@@ -292,6 +292,7 @@ void VideoEditorHome::StartTimer() {
     ProgressGaugeTimer->Start(INTERVAL);
 
 }
+
 
 void VideoEditorHome::StopTimer() {
 
@@ -304,8 +305,24 @@ void VideoEditorHome::StopTimer() {
 
 }
 
+
 void VideoEditorHome::ProgressGaugePulse(wxTimerEvent& WXUNUSED(event)) {
 
     ProgressGauge->Pulse();
+
+}
+
+
+void VideoEditorHome::RecreateTextBox() {
+
+    WordListBox->Remove(0);
+    delete WordList;
+
+    WordList = new wxTextCtrl(this, -1, "", wxDefaultPosition, LeftBox->CalcMin(), wxTE_RICH | wxTE_MULTILINE | wxFULL_REPAINT_ON_RESIZE);
+    WordList->SetBackgroundColour("#E4E0C7");
+    WordList->SetForegroundColour("#3C3642");
+    WordListBox->Add(WordList, 1, wxCENTER | wxEXPAND | wxALL | wxRESIZE_BORDER);
+
+    RightBox->Layout();
 
 }

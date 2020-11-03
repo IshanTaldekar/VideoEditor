@@ -5,6 +5,6 @@ set(CMAKE_CXX_STANDARD 14)
 
 add_subdirectory(lib/wxWidgets)
 
-set(SOURCE_FILES src/VideoEditorBase.cpp src/VideoEditorHome.cpp src/TextPanelSizer.cpp)
+set(SOURCE_FILES src/gui/VideoEditorBase.cpp src/gui/VideoEditorHome.cpp)
 add_executable(VideoEditorApp ${SOURCE_FILES})
 target_link_libraries(VideoEditorApp wx::net wx::core wx::base)

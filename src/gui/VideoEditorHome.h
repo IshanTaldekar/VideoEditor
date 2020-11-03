@@ -69,14 +69,17 @@ private:
     wxBoxSizer* WordListBox;
     wxStaticBoxSizer* TextBox;
     wxSizer* ProgressGaugeBox;
+    wxStaticBoxSizer* IntroPickerWrapperBox;
+    wxStaticBoxSizer* BackgroundPickerWrapperBox;
+    wxStaticBoxSizer* OutroPickerWrapperBox;
+    wxStaticBoxSizer* AudioPickerWrapperBox;
 
     void OnOptionReset(wxCommandEvent& event);
-    void OnOptionChangeOutputDir(wxCommandEvent& event);
     void OnOptionAbout(wxCommandEvent& event);
     void OnOptionHelp(wxCommandEvent& event);
     void OnOptionExit(wxCommandEvent& event);
     void OnExecute(wxCommandEvent& event);
-    void OnCancel(wxCommandEvent& event);
+    void OnLoad(wxCommandEvent& event);
     void CreatePickers();
     void RecreatePickers();
     void UpdateFilePickerMode();
@@ -91,6 +94,7 @@ private:
     void ProgressGaugePulse(wxTimerEvent& event);
     void StartTimer();
     void StopTimer();
+    void RecreateTextBox();
 
     DECLARE_EVENT_TABLE()
 
@@ -111,14 +115,6 @@ enum {
     PICKERPAGE_BackgroundFile,
     PICKERPAGE_OutroFile,
     PICKERPAGE_AudioFile
-
-};
-
-enum {
-
-    FILE_Open = 0,
-    FILE_Save,
-
 };
 
 #endif
