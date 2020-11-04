@@ -1,5 +1,5 @@
 # Video Editor 
-A video processing application under construction.
+Application under development.
 
-## Goals
-Partially automate the process of making videos that follow a particular template.
+*Sample:*
+![SAMPLE](res/gui_sample/sample.png)
