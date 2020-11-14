@@ -35,15 +35,18 @@ using std::string;
 #include <fstream>
 using std::ofstream;
 
+#include "../processing/video_processing.h"
+
 class VideoEditorHome : public wxFrame {
 
 public:
-
 
     VideoEditorHome(const wxString & title, const wxPoint & pos, const wxSize & size);  // title = the frame's name, pos = where the window will show up, size = the window size.
     ~VideoEditorHome() {}
 
 private:
+
+    VideoProcessor* Processor = new VideoProcessor();
 
     wxMenuBar *HomeMenuBar;  // Drop-down menu bar
     wxGauge* ProgressGauge {nullptr};  // Progression Gauge
@@ -82,13 +85,10 @@ private:
     void OnLoad(wxCommandEvent& event);
     void CreatePickers();
     void RecreatePickers();
-    void UpdateFilePickerMode();
     void OnIntroFileChange(wxFileDirPickerEvent& event);
     void OnBackgroundFileChange(wxFileDirPickerEvent& event);
     void OnOutroFileChange(wxFileDirPickerEvent& event);
     void OnAudioFileChange(wxFileDirPickerEvent& event);
-    void OnCheckBox(wxCommandEvent& event);
-    void OnButtonReset(wxCommandEvent& event);
     void CreateGauge();
     void GaugeTimer(wxCommandEvent& event);
     void ProgressGaugePulse(wxTimerEvent& event);
@@ -117,4 +117,4 @@ enum {
     PICKERPAGE_AudioFile
 };
 
-#endif
+#endif  // VIDEO_EDITOR_HOME_H

@@ -20,8 +20,10 @@ END_EVENT_TABLE()
 
  * Display dialog if Run is clicked before files are loaded
  * Explore alternatives for save as prompt
+ * Display dialog loaded files of incorrect types.
  * Add a dialog that pops up when user clicks load without selecting all input files
  * OnOptionsReset: if process active - Initiate Dialog asking user to terminate any active processes first.
+ * Start log file
 
 */
 
@@ -222,25 +224,28 @@ void VideoEditorHome::RecreatePickers() {
 
 void VideoEditorHome::OnIntroFileChange(wxFileDirPickerEvent& event) {
 
+    Processor->update_intro_file_url(static_cast<string>(event.GetPath()));
 
 }
 
 
 void VideoEditorHome::OnOutroFileChange(wxFileDirPickerEvent &event) {
 
+    Processor->update_outro_file_url(static_cast<string>(event.GetPath()));
 
 }
 
 
 void VideoEditorHome::OnBackgroundFileChange(wxFileDirPickerEvent &event) {
 
+    Processor->update_background_file_url(static_cast<string>(event.GetPath()));
 
 }
 
 
 void VideoEditorHome::OnAudioFileChange(wxFileDirPickerEvent &event) {
 
-
+    Processor->update_audio_file_url(static_cast<string>(event.GetPath()));
 
 }
 
