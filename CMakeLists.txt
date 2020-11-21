@@ -1,19 +1,14 @@
-cmake_minimum_required(VERSION 3.16)
-project(VideoEditor)
+cmake_minimum_required(VERSION 3.17)
+
+project(VideoEditorApp)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_COMPILER_VERSION REQUIRED True)
 
-add_subdirectory(lib/FFmpeg)
 add_subdirectory(lib/wxWidgets)
+add_subdirectory(lib/FFmpeg)
 
-set(SOURCE_FILES
-        src/gui/VideoEditorBase.cpp
-        src/gui/VideoEditorHome.cpp
-        src/processing/video_processing.cpp
-        src/processing/ffmpeg_util.c
-)
+set(SOURCE_FILES src/gui/VideoEditorBase.cpp src/gui/VideoEditorHome.cpp src/util/MediaProcessor.cpp)
 
 add_executable(VideoEditorApp ${SOURCE_FILES})
-
-target_link_libraries(VideoEditorApp wx::net wx::core wx::base FFmpeg)
+target_link_libraries(VideoEditorApp wx::net wx::core wx::base FFMPEG)
