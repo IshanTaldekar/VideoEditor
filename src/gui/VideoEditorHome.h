@@ -35,7 +35,7 @@ using std::string;
 #include <fstream>
 using std::ofstream;
 
-#include "../processing/video_processing.h"
+#include "../util/MediaProcessor.h"
 
 class VideoEditorHome : public wxFrame {
 
@@ -46,7 +46,7 @@ public:
 
 private:
 
-    VideoProcessor* Processor = new VideoProcessor();
+    MediaProcessor* Processor = new MediaProcessor();
 
     wxMenuBar *HomeMenuBar;  // Drop-down menu bar
     wxGauge* ProgressGauge {nullptr};  // Progression Gauge

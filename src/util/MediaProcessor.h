@@ -1,6 +1,22 @@
 #ifndef VID_PROC_H
 #define VID_PROC_H
 
+extern "C" {
+
+#ifndef __STDC_CONSTANT_MACROS
+#define __STDC_CONSTANT_MACROS
+#endif
+
+#include <libavutil/avutil.h>
+#include <libavformat/avformat.h>
+#include <libavfilter/avfilter.h>
+#include <libavdevice/avdevice.h>
+#include <libavcodec/avcodec.h>
+#include <libswresample/swresample.h>
+#include <libswscale/swscale.h>
+
+}
+
 #include <string>
 using std::string;
 
@@ -10,13 +26,11 @@ using std::ofstream;
 #include <iostream>
 using std::endl;
 
-#include "ffmpeg_util.h"
-
-class VideoProcessor {
+class MediaProcessor {
 
 public:
 
-    VideoProcessor();
+    MediaProcessor();
     bool update_intro_file_url(const string& filename);
     bool update_outro_file_url(const string& filename);
     bool update_background_file_url(const string& filename);
@@ -42,6 +56,8 @@ private:
     bool background_file_available {false};
     bool outro_file_available {false};
     bool audio_file_available {false};
+
+    bool validate_current_url(const char* filename);
 
     ofstream log_file;
 

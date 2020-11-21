@@ -1,13 +1,13 @@
-#include "video_processing.h"
+#include "MediaProcessor.h"
 
-VideoProcessor::VideoProcessor(): log_file("./VideoEditor/build/latest.log", ofstream::out | ofstream::trunc) {
+MediaProcessor::MediaProcessor(): log_file("./VideoEditor/build/latest.log", ofstream::out | ofstream::trunc) {
 
     log_file << "start up successful" << endl;
     log_file.flush();
 
 }
 
-bool VideoProcessor::update_intro_file_url(const string& filename) {
+bool MediaProcessor::update_intro_file_url(const string& filename) {
 
     log_file << "<file update event> ";
 
@@ -27,7 +27,7 @@ bool VideoProcessor::update_intro_file_url(const string& filename) {
 }
 
 
-bool VideoProcessor::update_background_file_url(const string &filename) {
+bool MediaProcessor::update_background_file_url(const string &filename) {
 
     log_file << "<file update event> ";
 
@@ -47,7 +47,7 @@ bool VideoProcessor::update_background_file_url(const string &filename) {
 }
 
 
-bool VideoProcessor::update_outro_file_url(const string& filename) {
+bool MediaProcessor::update_outro_file_url(const string& filename) {
 
     log_file << "<file update event> ";
 
@@ -67,7 +67,7 @@ bool VideoProcessor::update_outro_file_url(const string& filename) {
 }
 
 
-bool VideoProcessor::update_audio_file_url(const string& filename) {
+bool MediaProcessor::update_audio_file_url(const string& filename) {
 
     log_file << "<file update event> ";
 
@@ -87,7 +87,7 @@ bool VideoProcessor::update_audio_file_url(const string& filename) {
 }
 
 
-string VideoProcessor::get_intro_file_url() {
+string MediaProcessor::get_intro_file_url() {
 
     if (!intro_file_available) return "";
     return intro_file_url;
@@ -95,7 +95,7 @@ string VideoProcessor::get_intro_file_url() {
 }
 
 
-string VideoProcessor::get_background_file_url() {
+string MediaProcessor::get_background_file_url() {
 
     if (!background_file_available) return "";
     return background_file_url;
@@ -103,14 +103,14 @@ string VideoProcessor::get_background_file_url() {
 }
 
 
-string VideoProcessor::get_outro_file_url() {
+string MediaProcessor::get_outro_file_url() {
 
     if(!outro_file_available) return "";
     return outro_file_url;
 }
 
 
-string VideoProcessor::get_audio_file_url() {
+string MediaProcessor::get_audio_file_url() {
 
     if (!audio_file_available) return "";
     return audio_file_url;
@@ -118,8 +118,15 @@ string VideoProcessor::get_audio_file_url() {
 }
 
 
-bool VideoProcessor::execute() {
+bool MediaProcessor::execute() {
 
+    return true;
+
+}
+
+bool MediaProcessor::validate_current_url(const char* filename) {
+
+    AVFormatContext* av_frmt = avformat_alloc_context();
     return true;
 
 }
