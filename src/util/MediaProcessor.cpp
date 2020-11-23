@@ -1,8 +1,7 @@
 #include "MediaProcessor.h"
 
-
 /**
- * Initializes the log file and supported file extensions list.
+ * Initializes the log file and the list of supported file extensions.
  */
 MediaProcessor::MediaProcessor() {
 
@@ -18,11 +17,10 @@ MediaProcessor::MediaProcessor() {
 
 
 /**
- * checks that input urls are valid. avformat schemes are very powerful. They can
- * be used to expose local and remote files, audio and video devices etc. File urls
+ * checks that input urls are valid. avformat schemes are very powerful. They can be
+ * used to expose local and remote files, audio and video devices etc. File urls
  * should not be used without running checks. For the time being, this function will only
  * look at the extension to determine whether or not the file can be handled.
- *
  * @param filename a c-string containing the destination of the resource on the computer.
  * @returns true if the file exists and is of the appropriate file type.
  * @returns false if the file does not exist or is not supported.
@@ -57,9 +55,8 @@ bool MediaProcessor::validate_file_support(const string& file_path) {
 
 
 /**
- * updates intro_file_url attribute to hold the input path, if the path
- * points to a existing and valid file.
- *
+ * updates intro_file_url attribute to hold the input path, if the path points
+ * to a existing and valid file.
  * @param file_path the absolute path to the file
  * @return true if intro_file_path was updated successfully.
  * @return false if file is not of a supported type.
@@ -79,9 +76,8 @@ bool MediaProcessor::update_intro_file_url(const string& file_path) {
 
 
 /**
- * updates intro_file_url attribute to hold the input path, if the path
- * points to a existing and valid file.
- *
+ * updates intro_file_url attribute to hold the input path, if the path points
+ * to a existing and valid file.
  * @param file_path the absolute path to the file
  * @return true if intro_file_path was updated successfully.
  * @return false if file is not of a supported type.
@@ -103,9 +99,8 @@ bool MediaProcessor::update_background_file_url(const string &file_path) {
 
 
 /**
- * updates intro_file_url attribute to hold the input path, if the path
- * points to a existing and valid file.
- *
+ * updates intro_file_url attribute to hold the input path, if the path points
+ * to a existing and valid file.
  * @param file_path the absolute path to the file
  * @return true if intro_file_path was updated successfully.
  * @return false if file is not of a supported type.
@@ -125,9 +120,8 @@ bool MediaProcessor::update_outro_file_url(const string& file_path) {
 
 
 /**
- * updates intro_file_url attribute to hold the input path, if the path
- * points to a existing and valid file.
- *
+ * updates intro_file_url attribute to hold the input path, if the path points
+ * to a existing and valid file.
  * @param file_path the absolute path to the file
  * @return true if intro_file_path was updated successfully.
  * @return false if file is not of a supported type.
@@ -148,7 +142,6 @@ bool MediaProcessor::update_audio_file_url(const string& file_path) {
 
 /**
  * retrieve complete intro file url available.
- *
  * @returns intro file path, if available. otherwise, returns 'file:'.
  */
 string MediaProcessor::get_intro_file_url() {
@@ -161,7 +154,6 @@ string MediaProcessor::get_intro_file_url() {
 
 /**
  * retrieve complete background file url available.
- *
  * @returns background file path, if available. otherwise, returns 'file:'.
  */
 string MediaProcessor::get_background_file_url() {
@@ -174,7 +166,6 @@ string MediaProcessor::get_background_file_url() {
 
 /**
  * retrieve complete outro file url available.
- *
  * @returns outro file path, if available. otherwise, returns 'file:'.
  */
 string MediaProcessor::get_outro_file_url() {
@@ -186,8 +177,8 @@ string MediaProcessor::get_outro_file_url() {
 
 /**
  * retrieve complete audio file url available.
- *
- * @returns audio file path, if available. otherwise, returns 'file:'.
+ * @returns audio file path, if available. otherwise, returns 'file:',
+ * or an a prefix local files scheme followed by an empty url.
  */
 string MediaProcessor::get_audio_file_url() {
 
@@ -199,7 +190,6 @@ string MediaProcessor::get_audio_file_url() {
 
 /**
  * Update the word list.
- *
  * @param new_list an array of (string) words
  */
 void MediaProcessor::set_word_list(vector<string>& new_list) {
