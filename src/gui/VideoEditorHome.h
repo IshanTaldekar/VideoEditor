@@ -2,15 +2,13 @@
 #define VIDEO_EDITOR_HOME_H
 
 #ifndef wxUSE_FILEPICKERCTRL
-#define wxUSE_FILEPICKERCTRL 1
-#endif
-
-#ifndef wxUSE_STATLINE
-#define wxUSE_STATLINE 1
+#define wxUSE_FILEPICKERCTRL 1  // required by wxWidgets to use file pickers.
 #endif
 
 #include <wx/wxprec.h>
+
 #ifndef WX_PRECOMP
+
     #include <wx/wx.h>
     #include <wx/app.h>
     #include <wx/log.h>
@@ -23,6 +21,7 @@
     #include <wx/filepicker.h>
     #include <wx/filedlg.h>
     #include <wx/statline.h>
+
 #endif
 
 #include <iostream>
@@ -48,20 +47,20 @@ private:
 
     MediaProcessor* Processor = new MediaProcessor();
 
-    wxMenuBar *HomeMenuBar;  // Drop-down menu bar
-    wxGauge* ProgressGauge {nullptr};  // Progression Gauge
-    wxButton* ExecuteButton;  // Run Button
+    wxMenuBar *HomeMenuBar;  // Drop-down menu bar.
+    wxGauge* ProgressGauge {nullptr};  // Progression Gauge at the bottom of the screen.
+    wxButton* ExecuteButton;  // Button labelled 'Run'.
     wxButton* LoadButton;
-    wxTimer* ProgressGaugeTimer {nullptr};  // Simulates gauge progress
+    wxTimer* ProgressGaugeTimer {nullptr};  // Simulates gauge progress.
     wxTextCtrl* WordList;
 
-    /* File browse/choose buttons */
+    /* File browse/choose buttons: */
     wxFilePickerCtrl* IntroFilePicker {nullptr};
     wxFilePickerCtrl* BackgroundFilePicker {nullptr};
     wxFilePickerCtrl* OutroFilePicker {nullptr};
     wxFilePickerCtrl* AudioFilePicker {nullptr};
 
-    /* Widget placement */
+    /* Widget placement helpers: */
     wxBoxSizer* RightBox;
     wxBoxSizer* LeftBox;
     wxBoxSizer* IntroFileBox;
@@ -77,6 +76,7 @@ private:
     wxStaticBoxSizer* OutroPickerWrapperBox;
     wxStaticBoxSizer* AudioPickerWrapperBox;
 
+    /* Private member function declarations: */
     void OnOptionReset(wxCommandEvent& event);
     void OnOptionAbout(wxCommandEvent& event);
     void OnOptionHelp(wxCommandEvent& event);
@@ -94,6 +94,11 @@ private:
     void ProgressGaugePulse(wxTimerEvent& event);
     void StartTimer();
     void StopTimer();
+    void SetIntroFilePickerDesign();
+    void SetBackgroundFilePickerDesign();
+    void SetOutroFilePickerDesign();
+    void SetAudioFilePickerDesign();
+    void CreateTextBox();
     void RecreateTextBox();
 
     DECLARE_EVENT_TABLE()
