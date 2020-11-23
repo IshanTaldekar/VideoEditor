@@ -57,12 +57,18 @@ public:
     string get_outro_file_url();
     string get_audio_file_url();
 
+    bool load();
     bool execute();
 
 private:
 
     bool execute_flag {false};
     vector<string> words_list;
+
+    AVFormatContext* intro_file_format_context {nullptr};
+    AVFormatContext* background_file_format_context {nullptr};
+    AVFormatContext* outro_file_format_context {nullptr};
+    AVFormatContext* audio_file_format_context {nullptr};
 
     const string scheme_url_prefix {"file:"};  // url strings in libavformat should have a scheme/protocol (i.e. file for local files), followed by a ":". followed by the url.
 
@@ -79,8 +85,6 @@ private:
     vector<string> supported_media_containers;
     ofstream log_file;
 
-    // TODO: add INTRO, OUTRO, BG, AUDIO AVFormatContext vars if required. Init and dealloc on exit.
-
     bool validate_file_support(const string& file_path);
     void set_word_list(vector<string>& new_list);
     void generate_background_from_video();
@@ -89,10 +93,8 @@ private:
     void stich_videos_in_list(vector<string> file_urls);
     void integrate_audio_with_video_file(const string& audio_file_url, const string& video_file_url);
     void reset_parameters();
+    void load_media_file_information(bool& status);
     void log_message(const string& message);
-    bool open_video_file();
-    bool open_audio_file();
-    bool necessary_inputs_available();
 
 };
 

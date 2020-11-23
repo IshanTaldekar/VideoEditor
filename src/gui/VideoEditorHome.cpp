@@ -183,7 +183,11 @@ void VideoEditorHome::OnExecute(wxCommandEvent &event) {
  */
 void VideoEditorHome::OnLoad(wxCommandEvent &event) {
 
-    // TODO: Validate input files
+    if (!Processor->load()) {
+
+        // TODO: Display load error prompt
+
+    }
     // TODO: Generate and output word recommendations
 
 }
