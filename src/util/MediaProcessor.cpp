@@ -30,41 +30,39 @@ MediaProcessor::~MediaProcessor() {
 
 
 /**
- * Checks to see if the input file is of an appropriate type, and is readable. As avformat schemes are very powerful and
- * expose local and remote files, audio and video devices etc, verification of the urls is recommended.
- * TODO: description needs update and comment
+ * opens input files and verifies that format is supported.
  *
- * @param media_file
- * @param validation_option
- * @param status
+ * @param media_file wrapper for the necessary libav structs.
+ * @param validation_option specifies required streams.
+ * @param status true if file format is supported and has the required streams.
  */
-void MediaProcessor::open_media_and_validate_support(MediaComponents & media_file, int validation_option, bool & status) {
+void MediaProcessor::open_media_and_validate_support(MediaComponents & media_file_components, int validation_option, bool & status) {
 
-    avformat_free_context(media_file.format_context);
+    avformat_free_context(media_file_components.format_context);
 
-    media_file.format_context = nullptr;
-    media_file.codec = nullptr;
-    media_file.codec_parameters = nullptr;
+    media_file_components.format_context = nullptr;
+    media_file_components.codec = nullptr;
+    media_file_components.codec_parameters = nullptr;
     status = false;
-    media_file.stream_index = -1;
+    media_file_components.stream_index = -1;
 
-    if (avformat_open_input(&media_file.format_context, media_file.url.c_str(), nullptr, nullptr) < 0) {
+    if (avformat_open_input(&media_file_components.format_context, media_file_components.url.c_str(), nullptr, nullptr) < 0) {
 
         log_message("ERROR: could not open file.");
         return;
 
     }
 
-    if (avformat_find_stream_info(media_file.format_context, nullptr) < 0) {
+    if (avformat_find_stream_info(media_file_components.format_context, nullptr) < 0) {
 
         log_message("ERROR: did not find stream information.");
         return;
 
     }
 
-    for (int i = 0; i < media_file.format_context->nb_streams; ++i) {
+    for (int i = 0; i < media_file_components.format_context->nb_streams; ++i) {
 
-        AVCodecParameters* media_stream_codec_parameters {media_file.format_context->streams[i]->codecpar};
+        AVCodecParameters* media_stream_codec_parameters {media_file_components.format_context->streams[i]->codecpar};
         AVCodec* media_stream_codec {avcodec_find_decoder(media_stream_codec_parameters->codec_id)};
 
         if (!media_stream_codec) {
@@ -75,12 +73,12 @@ void MediaProcessor::open_media_and_validate_support(MediaComponents & media_fil
 
         }
 
-        if((validation_option == VIDEO_TYPE_MEDIA_REQUIRED && media_stream_codec_parameters->codec_type == AVMEDIA_TYPE_VIDEO) ||
-            (validation_option == AUDIO_TYPE_MEDIA_REQUIRED && media_stream_codec_parameters->codec_type == AVMEDIA_TYPE_AUDIO)) {
+        if((validation_option == VIDEO_TYPE_MEDIA_REQUIRED && media_stream_codec_parameters->codec_type == AVMEDIA_TYPE_VIDEO)
+            || (validation_option == AUDIO_TYPE_MEDIA_REQUIRED && media_stream_codec_parameters->codec_type == AVMEDIA_TYPE_AUDIO)) {
 
-            media_file.stream_index = i;
-            media_file.codec = media_stream_codec;
-            media_file.codec_parameters = media_stream_codec_parameters;
+            media_file_components.stream_index = i;
+            media_file_components.codec = media_stream_codec;
+            media_file_components.codec_parameters = media_stream_codec_parameters;
 
             status = true;
             log_message("DONE: good input file format.");
@@ -97,12 +95,64 @@ void MediaProcessor::open_media_and_validate_support(MediaComponents & media_fil
 
 
 /**
- * Extend input video to match the duration of the audio file provided.
+ * Loop background video to match the duration of the audio file provided.
+ *
+ * @return true if operation was successful.
  */
-void MediaProcessor::generate_background_from_video() {
+bool MediaProcessor::extend_background_video_duration() {
 
+    AVCodecContext* codec_context {avcodec_alloc_context3(background_file_components.codec)};
 
+    if (!codec_context) {
 
+        log_message("ERROR: codec memory allocation failed while extending background video.");
+        return false;
+
+    }
+
+    if (avcodec_parameters_to_context(codec_context, background_file_components.codec_parameters) < 0) {
+
+        log_message("ERROR: background codec params could not be copied to the context.");
+        return false;
+
+    }
+
+    if (avcodec_open2(codec_context, background_file_components.codec, nullptr) < 0) {
+
+        log_message("ERROR: failed to open codec.");
+        return false;
+
+    }
+
+    AVFrame* media_frame {av_frame_alloc()};
+
+    if (!media_frame) {
+
+        log_message("ERROR: failed to allocate memory for frame.");
+        return false;
+
+    }
+
+    AVPacket* media_packet {av_packet_alloc()};
+
+    if (!media_packet) {
+
+        log_message("ERROR: failed to allocate memory for packet.");
+        return false;
+
+    }
+
+    while (av_read_frame(background_file_components.format_context, media_packet) >= 0) {
+
+        if (media_packet->stream_index == background_file_components.stream_index) {
+
+            // TODO: see if there is a way to encode packets in here with diff pts values
+
+        }
+
+    }
+
+    return true;
 
 }
 
@@ -198,7 +248,7 @@ bool MediaProcessor::update_audio_file_url(const string& file_path) {
 /**
  * Update the word list.
  *
- * @param new_list an array of (string) words
+ * @param new_list an array of (string) words.
  */
 void MediaProcessor::set_word_list(vector<string>& new_list) {
 
@@ -213,7 +263,7 @@ void MediaProcessor::set_word_list(vector<string>& new_list) {
  *
  * @returns true if all four input files have been loaded.
  */
-bool MediaProcessor::check_all_files_available() {
+bool MediaProcessor::check_all_files_available() const {
 
     if (state.intro_file_available && state.outro_file_available && state.audio_file_available
         && state.background_file_available) return true;
@@ -226,7 +276,7 @@ bool MediaProcessor::check_all_files_available() {
 /**
  * Write a message to log file.
  *
- * @param message the (string) message to be written
+ * @param message the (string) message to be written.
  */
 void MediaProcessor::log_message(const string& message) {
 

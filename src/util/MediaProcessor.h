@@ -35,10 +35,6 @@ using std::endl;
 #include <vector>
 using std::vector;
 
-#include <algorithm>
-using std::reverse;
-
-constexpr int MAX_PATH_LENGTH = 1024;
 constexpr int VIDEO_TYPE_MEDIA_REQUIRED = 1;
 constexpr int AUDIO_TYPE_MEDIA_REQUIRED = 2;
 
@@ -75,7 +71,7 @@ public:
     bool update_background_file_url(const string& file_path);
     bool update_audio_file_url(const string& file_path);
 
-    bool check_all_files_available();
+    bool check_all_files_available() const;
 
 private:
 
@@ -85,16 +81,13 @@ private:
     MediaComponents audio_file_components;
 
     vector<string> words_list;
-
+    ProcessorFlags state;
     ofstream log_file;
 
     const string scheme_url_prefix {"file:"};  // url strings in libavformat should have a scheme/protocol (i.e. file for local files), followed by a ":". followed by the url.
 
-    ProcessorFlags state;
-
-    bool validate_file_support(const string& file_path);
     void set_word_list(vector<string>& new_list);
-    void generate_background_from_video();
+    bool extend_background_video_duration();
     void generate_background_from_image();
     void stich_videos_in_list(vector<string> file_urls);
     void open_media_and_validate_support(MediaComponents & media_file, int validation_option, bool & status);
