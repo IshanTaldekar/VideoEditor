@@ -183,7 +183,7 @@ void VideoEditorHome::OnExecute(wxCommandEvent &event) {
  */
 void VideoEditorHome::OnLoad(wxCommandEvent &event) {
 
-    if (!Processor->load()) {
+    if (!Processor->check_all_files_available()) {
 
         // TODO: Display load error prompt
 
