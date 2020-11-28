@@ -169,6 +169,7 @@ void VideoEditorHome::OnOptionExit(wxCommandEvent &event) {
 void VideoEditorHome::OnExecute(wxCommandEvent &event) {
 
     GaugeTimer(event);
+
     // TODO: Set words list in processor
     // TODO: Get and set output file path and name.
     // TODO: Call individual steps and log exit status.
@@ -188,6 +189,8 @@ void VideoEditorHome::OnLoad(wxCommandEvent &event) {
         // TODO: Display load error prompt
 
     }
+
+    Processor->execute();
     // TODO: Generate and output word recommendations
 
 }
