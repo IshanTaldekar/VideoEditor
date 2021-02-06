@@ -1,5 +1,16 @@
-#ifndef VID_PROC_H
-#define VID_PROC_H
+#pragma once
+
+#include <string>
+#include <fstream>
+#include <iostream>
+#include <vector>
+using std::string;
+using std::ofstream;
+using std::endl;
+using std::vector;
+
+
+#include "DataContainer.h"
 
 
 #ifndef FFMPEG_HEADERS
@@ -23,61 +34,26 @@ extern "C" {
 
 #endif
 
-#include <string>
-using std::string;
 
-#include <fstream>
-using std::ofstream;
+#ifndef FILETYPE_CODES
+#define FILETYPE_CODES
 
-#include <iostream>
-using std::endl;
+enum {
 
-#include <vector>
-using std::vector;
-
-constexpr int VIDEO_TYPE_MEDIA_REQUIRED = 1;
-constexpr int AUDIO_TYPE_MEDIA_REQUIRED = 2;
-
-struct ProcessorState {
-
-    bool intro_file_available {false};
-    bool background_file_available {false};
-    bool outro_file_available {false};
-    bool audio_file_available {false};
-    bool execute {false};
-
-    const string scheme_url_prefix {"file:"};  // url strings in libavformat should have a scheme/protocol (i.e. file for local files), followed by a ":". followed by the url.
-    string output_file_container {".mp4"};
-
-    /* All information below referenced from: https://github.com/leandromoreira/ffmpeg-libav-tutorial */
-
-    string output_media_codec {"libx264"};  // H.264, MPEG-4 Part 10
-    string output_codec_priv_key {"x264-params"};
-    string output_codec_priv_value {"keyint=60:min-keyint=60:scenecut=0:force-cfr=0"};
-
-    string output_muxer_opt_key {};  // set to "movflags" for frag. mp4
-    string output_muxer_opt_value {};  // set to "frag_keyframe+empty_moov+default_base_moof" for frag. mp4
-
-    int bitrate = 2000000;
-    int rc_buffer_size = 4 * 1000 * 1000;
-    int rc_max_rate = 2.5 * 1000 * 1000;
-    int rc_min_rate = 2 * 1000 * 1000;
-
+    INPUT_FILETYPE = 0,
+    OUTPUT_FILETYPE,
+    INTRO_FILE,
+    BACKGROUND_FILE,
+    OUTRO_FILE,
+    AUDIO_FILE
 
 };
 
-struct FileComponents {
+#endif  // FILETYPE_CODES
 
-    AVFormatContext* format_context {nullptr};
-    AVCodec* codec {nullptr};
-    AVCodecParameters* codec_parameters {nullptr};
-    AVStream* stream {nullptr};
-    AVCodecContext* codec_context {nullptr};
-    int stream_index {};
-    string url {};
-    string name {};
 
-};
+#ifndef VID_PROC_H
+#define VID_PROC_H
 
 class MediaProcessor {
 
@@ -86,24 +62,13 @@ public:
     MediaProcessor();
     ~MediaProcessor();
 
-    bool update_intro_file_url(const string& file_path);
-    bool update_outro_file_url(const string& file_path);
-    bool update_background_file_url(const string& file_path);
-    bool update_audio_file_url(const string& file_path);
-
-    bool check_all_files_available() const;
     bool execute();
 
 private:
 
-    FileComponents intro_file_components;
-    FileComponents background_file_components;
-    FileComponents outro_file_components;
-    FileComponents audio_file_components;
-    FileComponents output_file_components;
+    DataContainer* application_data {new DataContainer()};
 
     vector<string> words_list;
-    ProcessorState state;
     ofstream log_file;
 
     void set_word_list(vector<string>& new_list);

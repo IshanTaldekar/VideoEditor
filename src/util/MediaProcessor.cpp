@@ -567,7 +567,6 @@ bool MediaProcessor::check_all_files_available() const {
 
 }
 
-
 /**
  * Write a message to log file.
  *
