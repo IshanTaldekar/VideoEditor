@@ -1,48 +1,5 @@
-#pragma once
-#include <string>
-using std::string;
-
-
-#include "FileComponents.cpp"
-
-
-#ifndef FILETYPE_CODES
-#define FILETYPE_CODES
-
-enum {
-
-    INPUT_FILETYPE = 0,
-    OUTPUT_FILETYPE,
-    INTRO_FILE,
-    BACKGROUND_FILE,
-    OUTRO_FILE,
-    AUDIO_FILE
-
-};
-
-#endif  // FILETYPE_CODES
-
-
-#ifndef FFMPEG_HEADERS
-#define FFMPEG_HEADERS
-
-extern "C" {
-
-#ifndef __STDC_CONSTANT_MACROS
-#define __STDC_CONSTANT_MACROS
-#endif
-
-#include <libavutil/avutil.h>
-#include <libavformat/avformat.h>
-#include <libavfilter/avfilter.h>
-#include <libavdevice/avdevice.h>
-#include <libavcodec/avcodec.h>
-#include <libswresample/swresample.h>
-#include <libswscale/swscale.h>
-
-}
-
-#endif  // FFMPEG_HEADERS
+#include "Dependencies.h"
+#include "FileComponents.h"
 
 
 #ifndef VIDEOEDITORAPP_FILEDATACONTAINER_H
@@ -72,6 +29,9 @@ class DataContainer {
     int rc_min_rate {static_cast<int>(2 * 1000 * 1000)};
 
 public:
+
+    DataContainer();
+    ~DataContainer();
 
     FileComponents* get_file_components(int file_code);
     void get_output_file_container(string new_file_container);

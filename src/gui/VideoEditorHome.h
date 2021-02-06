@@ -24,17 +24,11 @@
 
 #endif
 
-#include <iostream>
-using std::cout;
-using std::endl;
-
-#include <string>
-using std::string;
-
-#include <fstream>
-using std::ofstream;
-
-#include "../util/MediaProcessor.h"
+// #include "../util/MediaProcessor.h"
+#include "../util/Dependencies.h"
+#include "../util/DataContainer.h"
+#include "../util/FileComponents.h"
+#include "../util/ApplicationStatusLog.h"
 
 class VideoEditorHome : public wxFrame {
 
@@ -45,7 +39,8 @@ public:
 
 private:
 
-    MediaProcessor* Processor = new MediaProcessor();
+    FileComponents* AppData {nullptr};
+    ApplicationStatusLog* status_log;
 
     wxMenuBar *HomeMenuBar;  // Drop-down menu bar.
     wxGauge* ProgressGauge {nullptr};  // Progression Gauge at the bottom of the screen.

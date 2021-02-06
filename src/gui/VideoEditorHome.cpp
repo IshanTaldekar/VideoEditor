@@ -16,6 +16,7 @@ END_EVENT_TABLE()
 
 /**
  * Initialize and position the buttons, file pickers and other widgets.
+ *
  * @param title the current frame's title
  * @param pos the position (x and y coordinates).
  * @param size the frame size in pixel (width and height)
@@ -109,6 +110,7 @@ VideoEditorHome::VideoEditorHome(const wxString & title, const wxPoint & pos, co
 /**
  * Defines the behavior of the reset button from the options menu. When button is clicked, the
  * file picker selections are reset, button labels are reset, and text box is cleared.
+ *
  * @param event unused command event.
  */
 void VideoEditorHome::OnOptionReset(wxCommandEvent &event) {
@@ -128,6 +130,7 @@ void VideoEditorHome::OnOptionReset(wxCommandEvent &event) {
 /**
  * Defines the behavior of the about button from the options menu. When button is clicked,
  * a pop up with information about the app and developers appears.
+ *
  * @param event unused command event.
  */
 void VideoEditorHome::OnOptionAbout(wxCommandEvent &event) {
@@ -140,6 +143,7 @@ void VideoEditorHome::OnOptionAbout(wxCommandEvent &event) {
 /**
  * Defines the behavior of the help button from the options menu. When button is clicked,
  * a pop up with information on how to use the app appears.
+ *
  * @param event unused command event.
  */
 void VideoEditorHome::OnOptionHelp(wxCommandEvent &event) {
@@ -151,6 +155,7 @@ void VideoEditorHome::OnOptionHelp(wxCommandEvent &event) {
 /**
  * Defines the behavior of the exit button from the options menu. When button is clicked, the
  * application terminates.
+ *
  * @param event unused command event.
 */
 void VideoEditorHome::OnOptionExit(wxCommandEvent &event) {
@@ -164,6 +169,7 @@ void VideoEditorHome::OnOptionExit(wxCommandEvent &event) {
  * Defines the behavior of the run button. When button is clicked, a dialog prompts the user to
  * select an output file and location. Once the location is selected, the app will start processing
  * the inputs and compute the video output.
+ *
  * @param event unused command event
  */
 void VideoEditorHome::OnExecute(wxCommandEvent &event) {
@@ -184,14 +190,6 @@ void VideoEditorHome::OnExecute(wxCommandEvent &event) {
  */
 void VideoEditorHome::OnLoad(wxCommandEvent &event) {
 
-    if (!Processor->check_all_files_available()) {
-
-        // TODO: Display load error prompt
-
-    }
-
-    Processor->execute();
-    // TODO: Generate and output word recommendations
 
 }
 
@@ -334,13 +332,16 @@ void VideoEditorHome::RecreatePickers() {
 /**
  * Updates the MediaProcessor::intro_file_url attribute. On a successful update, the function simply exits. However,
  * if the attribute update failed for some reason - a error message is displayed.
+ *
  * @param event holds picker state information
  */
 void VideoEditorHome::OnIntroFileChange(wxFileDirPickerEvent& event) {
 
-    if (!(Processor->update_intro_file_url(static_cast<string>(event.GetPath())))) {
+    AppData = new FileComponents(static_cast<string>(event.GetPath()), INPUT_FILETYPE);
 
-        // TODO: display unsupported file message.
+    if (AppData->is_live()) {
+
+        StartTimer();
 
     }
 
@@ -350,15 +351,11 @@ void VideoEditorHome::OnIntroFileChange(wxFileDirPickerEvent& event) {
 /**
  * Updates the MediaProcessor::outro_file_url attribute. On a successful update, the function simply exits. However,
  * if the attribute update failed for some reason - a error message is displayed.
+ *
  * @param event holds picker state information
  */
 void VideoEditorHome::OnOutroFileChange(wxFileDirPickerEvent &event) {
 
-    if (!(Processor->update_outro_file_url(static_cast<string>(event.GetPath())))) {
-
-        // TODO: display unsupported file message.
-
-    }
 
 }
 
@@ -366,15 +363,11 @@ void VideoEditorHome::OnOutroFileChange(wxFileDirPickerEvent &event) {
 /**
  * Updates the MediaProcessor::background_file_url attribute. On a successful update, the function simply exits. However,
  * if the attribute update failed for some reason - a error message is displayed.
+ *
  * @param event holds picker state information
  */
 void VideoEditorHome::OnBackgroundFileChange(wxFileDirPickerEvent &event) {
 
-    if (!(Processor->update_background_file_url(static_cast<string>(event.GetPath())))) {
-
-        // TODO: display unsupported file message.
-
-    }
 
 }
 
@@ -382,21 +375,18 @@ void VideoEditorHome::OnBackgroundFileChange(wxFileDirPickerEvent &event) {
 /**
  * Updates the MediaProcessor::audio_file_url attribute. On a successful update, the function simply exits. However,
  * if the attribute update failed for some reason - a error message is displayed.
+ *
  * @param event holds picker state information
  */
 void VideoEditorHome::OnAudioFileChange(wxFileDirPickerEvent &event) {
 
-    if (!(Processor->update_audio_file_url(static_cast<string>(event.GetPath())))) {
-
-        // TODO: display unsupported file message.
-
-    }
 }
 
 
 /**
  * When media files are being processed, this function helps keep the progress-gauge pulsing
  * - indicating to user that the application is busy. Otherwise, it will reset the progress-gauge.
+ *
  * @param event holds run/cancel button attributes
  */
 void VideoEditorHome::GaugeTimer(wxCommandEvent& event) {
