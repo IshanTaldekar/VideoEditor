@@ -1,5 +1,8 @@
 #include "ApplicationStatusLog.h"
 
+/**
+ * Open file that the log messages will be written to.
+ */
 ApplicationStatusLog::ApplicationStatusLog() {
 
     app_log = ofstream("./VideoEditor/build/app.log", ofstream::out | ofstream::trunc);
@@ -7,13 +10,14 @@ ApplicationStatusLog::ApplicationStatusLog() {
 
 }
 
-
+/**
+ * Close log file.
+ */
 ApplicationStatusLog::~ApplicationStatusLog() {
 
     app_log.close();
 
 }
-
 
 /**
  * Write a message to log file.

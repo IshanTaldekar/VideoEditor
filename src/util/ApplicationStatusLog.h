@@ -3,7 +3,6 @@
 #ifndef VIDEOEDITORAPP_STATUSLOGGER_H
 #define VIDEOEDITORAPP_STATUSLOGGER_H
 
-
 class ApplicationStatusLog {
 
     ofstream app_log;
@@ -16,4 +15,4 @@ public:
 
 };
 
-#endif//VIDEOEDITORAPP_STATUSLOGGER_H
+#endif  //VIDEOEDITORAPP_STATUSLOGGER_H

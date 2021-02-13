@@ -24,11 +24,12 @@
 
 #endif
 
-// #include "../util/MediaProcessor.h"
-#include "../util/Dependencies.h"
-#include "../util/DataContainer.h"
-#include "../util/FileComponents.h"
 #include "../util/ApplicationStatusLog.h"
+#include "../util/ApplicationWordListGenerator.h"
+#include "../util/DataContainer.h"
+#include "../util/Dependencies.h"
+#include "../util/FileComponents.h"
+// #include "../util/MediaProcessor.h"
 
 class VideoEditorHome : public wxFrame {
 
@@ -39,15 +40,16 @@ public:
 
 private:
 
-    FileComponents* AppData {nullptr};
-    ApplicationStatusLog* status_log;
+    ApplicationStatusLog* AppLog {nullptr};
+    DataContainer* AppData {nullptr};
+    ApplicationWordListGenerator * AppWordListGenerator {nullptr};
 
-    wxMenuBar *HomeMenuBar;  // Drop-down menu bar.
+    wxMenuBar *HomeMenuBar {nullptr};  // Drop-down menu bar.
     wxGauge* ProgressGauge {nullptr};  // Progression Gauge at the bottom of the screen.
-    wxButton* ExecuteButton;  // Button labelled 'Run'.
-    wxButton* LoadButton;
+    wxButton* ExecuteButton {nullptr};  // Button labelled 'Run'.
+    wxButton* LoadButton {nullptr};
     wxTimer* ProgressGaugeTimer {nullptr};  // Simulates gauge progress.
-    wxTextCtrl* WordList;
+    wxTextCtrl* WordList {nullptr};
 
     /* File browse/choose buttons: */
     wxFilePickerCtrl* IntroFilePicker {nullptr};
@@ -56,20 +58,22 @@ private:
     wxFilePickerCtrl* AudioFilePicker {nullptr};
 
     /* Widget placement helpers: */
-    wxBoxSizer* RightBox;
-    wxBoxSizer* LeftBox;
-    wxBoxSizer* IntroFileBox;
-    wxBoxSizer* BackgroundFileBox;
-    wxBoxSizer* OutroFileBox;
-    wxBoxSizer* AudioFileBox;
-    wxBoxSizer* FileBrowsersBox;
-    wxBoxSizer* WordListBox;
-    wxStaticBoxSizer* TextBox;
-    wxSizer* ProgressGaugeBox;
-    wxStaticBoxSizer* IntroPickerWrapperBox;
-    wxStaticBoxSizer* BackgroundPickerWrapperBox;
-    wxStaticBoxSizer* OutroPickerWrapperBox;
-    wxStaticBoxSizer* AudioPickerWrapperBox;
+    wxBoxSizer* RightBox {nullptr};
+    wxBoxSizer* LeftBox {nullptr};
+    wxBoxSizer* IntroFileBox {nullptr};
+    wxBoxSizer* BackgroundFileBox {nullptr};
+    wxBoxSizer* OutroFileBox {nullptr};
+    wxBoxSizer* AudioFileBox {nullptr};
+    wxBoxSizer* FileBrowsersBox {nullptr};
+    wxBoxSizer* WordListBox {nullptr};
+    wxStaticBoxSizer* TextBox {nullptr};
+    wxSizer* ProgressGaugeBox {nullptr};
+    wxStaticBoxSizer* IntroPickerWrapperBox {nullptr};
+    wxStaticBoxSizer* BackgroundPickerWrapperBox {nullptr};
+    wxStaticBoxSizer* OutroPickerWrapperBox {nullptr};
+    wxStaticBoxSizer* AudioPickerWrapperBox {nullptr};
+
+    long int seconds_between_words {10};  // TODO: set with GUI eventually.
 
     /* Private member function declarations: */
     void OnOptionReset(wxCommandEvent& event);
@@ -95,6 +99,8 @@ private:
     void SetAudioFilePickerDesign();
     void CreateTextBox();
     void RecreateTextBox();
+    void DisplayWords(const vector<string> & current_word_list);
+    void GetDisplayedWords();
 
     DECLARE_EVENT_TABLE()
 

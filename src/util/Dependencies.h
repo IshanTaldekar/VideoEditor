@@ -8,7 +8,8 @@ enum {
     INTRO_FILE,
     BACKGROUND_FILE,
     OUTRO_FILE,
-    AUDIO_FILE
+    AUDIO_FILE,
+    OUTPUT_FILE
 
 };
 
@@ -44,11 +45,22 @@ extern "C" {
 #include <fstream>
 #include <iostream>
 #include <utility>
+#include <unordered_set>
+#include <chrono>
+#include <random>
+#include <unistd.h>
 using std::string;
+using std::getline;
 using std::cout;
 using std::ofstream;
+using std::ifstream;
 using std::endl;
 using std::vector;
 using std::move;
+using std::unordered_set;
+using std::default_random_engine;
+using std::uniform_int_distribution;
+using std::chrono::system_clock;
+using std::to_string;
 
 #endif //VIDEOEDITORAPP_DEPENDENCIES_H

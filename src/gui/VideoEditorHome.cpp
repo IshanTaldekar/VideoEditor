@@ -104,6 +104,10 @@ VideoEditorHome::VideoEditorHome(const wxString & title, const wxPoint & pos, co
 
     SetSizer(MainSizer);  // Associate MainSizer with the frame
 
+    AppLog = new ApplicationStatusLog();  // initialize app log
+    AppData = new DataContainer(AppLog);  // initialize app data structure object
+    AppWordListGenerator = new ApplicationWordListGenerator(AppLog);  // initialize word list
+
 }
 
 
@@ -190,6 +194,25 @@ void VideoEditorHome::OnExecute(wxCommandEvent &event) {
  */
 void VideoEditorHome::OnLoad(wxCommandEvent &event) {
 
+    AppLog->add("Loading inputs.");
+
+    if (AppData->all_files_live()) {
+
+        AppLog->add("[SUCCESS] All files are live.");
+
+        FileComponents* audio_file {AppData->get_file_components(AUDIO_FILE)};
+        long audio_file_duration {audio_file->get_duration()};
+
+        int word_count {static_cast<int>(audio_file_duration / seconds_between_words)};  // assumes that beat isn't very long
+
+        vector<string> current_words_list {AppWordListGenerator->get_new_list(word_count)};
+        DisplayWords(current_words_list);
+
+    } else {
+
+        // TODO: Display popup error message.
+
+    }
 
 }
 
@@ -337,13 +360,7 @@ void VideoEditorHome::RecreatePickers() {
  */
 void VideoEditorHome::OnIntroFileChange(wxFileDirPickerEvent& event) {
 
-    AppData = new FileComponents(static_cast<string>(event.GetPath()), INPUT_FILETYPE);
-
-    if (AppData->is_live()) {
-
-        StartTimer();
-
-    }
+    AppData->set_input_file(static_cast<string>(event.GetPath()), INTRO_FILE);
 
 }
 
@@ -356,6 +373,7 @@ void VideoEditorHome::OnIntroFileChange(wxFileDirPickerEvent& event) {
  */
 void VideoEditorHome::OnOutroFileChange(wxFileDirPickerEvent &event) {
 
+    AppData->set_input_file(static_cast<string>(event.GetPath()), OUTRO_FILE);
 
 }
 
@@ -368,6 +386,7 @@ void VideoEditorHome::OnOutroFileChange(wxFileDirPickerEvent &event) {
  */
 void VideoEditorHome::OnBackgroundFileChange(wxFileDirPickerEvent &event) {
 
+    AppData->set_input_file(static_cast<string>(event.GetPath()), BACKGROUND_FILE);
 
 }
 
@@ -379,6 +398,8 @@ void VideoEditorHome::OnBackgroundFileChange(wxFileDirPickerEvent &event) {
  * @param event holds picker state information
  */
 void VideoEditorHome::OnAudioFileChange(wxFileDirPickerEvent &event) {
+
+    AppData->set_input_file(static_cast<string>(event.GetPath()), AUDIO_FILE);
 
 }
 
@@ -460,5 +481,21 @@ void VideoEditorHome::RecreateTextBox() {
     CreateTextBox();
     WordListBox->Add(WordList, 1, wxCENTER | wxEXPAND | wxALL | wxRESIZE_BORDER);
     RightBox->Layout();
+
+}
+
+void VideoEditorHome::DisplayWords(const vector<string> & word_list) {
+
+    AppLog->add("Displaying words to GUI text board.");
+
+    WordList->Clear();
+
+    for (const string & current_word: word_list) {
+
+        WordList->AppendText(current_word + "\n");
+
+    }
+
+    AppLog->add("[SUCCESS] GUI text board populated with random words.");
 
 }

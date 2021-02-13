@@ -1,14 +1,12 @@
 #include "MediaProcessor.h"
 
-/**
- * Initializes the log file and the list of supported file extensions.
+/*
+ * TODO: Rewrite functions.
+ *
+ * !!! THIS CODE IS INCOMPLETE AND INCORRECT !!!
+ *
  */
-MediaProcessor::MediaProcessor() {
 
-    log_file = ofstream("./VideoEditor/build/latest.log", ofstream::out | ofstream::trunc);
-    log_message("Start-up successful.");
-
-}
 
 /**
  * Loop background video to match the duration of the audio file provided.
@@ -17,24 +15,20 @@ MediaProcessor::MediaProcessor() {
  */
 bool MediaProcessor::transcode_and_extend_background_video() {
 
-    log_message("Transcoding and extending background video.");
     AVCodecContext *codec_context{avcodec_alloc_context3(background_file_components.codec)};
 
     if (!codec_context) {
 
-        log_message("ERROR: codec memory allocation failed while extending background video.");
         return false;
     }
 
     if (avcodec_parameters_to_context(codec_context, background_file_components.codec_parameters) < 0) {
 
-        log_message("ERROR: background codec params could not be copied to the context.");
         return false;
     }
 
     if (avcodec_open2(codec_context, background_file_components.codec, nullptr) < 0) {
 
-        log_message("ERROR: failed to open codec.");
         return false;
     }
 
@@ -42,7 +36,6 @@ bool MediaProcessor::transcode_and_extend_background_video() {
 
     if (!media_frame) {
 
-        log_message("ERROR: failed to allocate memory for frame.");
         return false;
     }
 
@@ -50,7 +43,6 @@ bool MediaProcessor::transcode_and_extend_background_video() {
 
     if (!media_packet) {
 
-        log_message("ERROR: failed to allocate memory for packet.");
         return false;
     }
 
@@ -353,32 +345,5 @@ bool MediaProcessor::write_output_video() {
 
     av_write_trailer(output_file_components.format_context);
     return true;
-
-}
-
-
-
-/**
- * Update the word list.
- *
- * @param new_list an array of (string) words.
- */
-void MediaProcessor::set_word_list(vector<string>& new_list) {
-
-    words_list = new_list;
-    log_message("Word list updated.");
-
-}
-
-
-/**
- * Write a message to log file.
- *
- * @param message the (string) message to be written.
- */
-void MediaProcessor::log_message(const string& message) {
-
-    log_file << "> " << message << endl;
-    log_file.flush();
 
 }
