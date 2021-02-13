@@ -1,4 +1,8 @@
 # Video Editor 
-Application under development.
+Application still under development.
 
-![SAMPLE](res/gui_sample/sample.png)
+If you're using Ubuntu, use the snap version of CMake (version 3.17 is required).
+
+
+## Current development stage sample
+![SAMPLE](res/gui_sample/sample_app_demo.png)
