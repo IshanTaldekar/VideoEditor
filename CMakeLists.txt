@@ -8,7 +8,13 @@ set(CMAKE_CXX_COMPILER_VERSION REQUIRED True)
 add_subdirectory(lib/wxWidgets)
 add_subdirectory(lib/FFmpeg)
 
-set(SOURCE_FILES src/gui/VideoEditorBase.cpp src/gui/VideoEditorHome.cpp src/util/MediaProcessor.cpp)
+set(SOURCE_FILES
+        src/gui/VideoEditorBase.cpp
+        src/gui/VideoEditorHome.cpp
+        src/util/DataContainer.cpp
+        src/util/FileComponents.cpp
+        src/util/ApplicationStatusLog.cpp
+        src/util/ApplicationWordListGenerator.cpp)
 
 add_executable(VideoEditorApp ${SOURCE_FILES})
 target_link_libraries(VideoEditorApp wx::net wx::core wx::base FFMPEG)
