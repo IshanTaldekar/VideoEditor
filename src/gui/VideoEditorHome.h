@@ -29,14 +29,13 @@
 #include "../util/DataContainer.h"
 #include "../util/Dependencies.h"
 #include "../util/FileComponents.h"
-// #include "../util/MediaProcessor.h"
+#include "../util/MediaProcessor.h"
 
 class VideoEditorHome : public wxFrame {
 
 public:
 
     VideoEditorHome(const wxString & title, const wxPoint & pos, const wxSize & size);  // title = the frame's name, pos = where the window will show up, size = the window size.
-    ~VideoEditorHome() {}
 
 private:
 
@@ -100,7 +99,7 @@ private:
     void CreateTextBox();
     void RecreateTextBox();
     void DisplayWords(const vector<string> & current_word_list);
-    void GetDisplayedWords();
+    void SaveDisplayedWords();
 
     DECLARE_EVENT_TABLE()
 

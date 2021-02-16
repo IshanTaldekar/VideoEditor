@@ -14,6 +14,7 @@ EVT_FILEPICKER_CHANGED(PICKERPAGE_AudioFile, VideoEditorHome::OnAudioFileChange)
 EVT_TIMER(GAUGE_Timer, VideoEditorHome::ProgressGaugePulse)
 END_EVENT_TABLE()
 
+
 /**
  * Initialize and position the buttons, file pickers and other widgets.
  *
@@ -58,6 +59,7 @@ VideoEditorHome::VideoEditorHome(const wxString & title, const wxPoint & pos, co
 
     /* Create Buttons: */
     ExecuteButton = new wxButton(this, BUTTON_Execute, "&Run", wxDefaultPosition);
+    ExecuteButton->Enable(wxFalse);
     LoadButton = new wxButton(this, BUTTON_LOAD, "&Load", wxDefaultPosition);
 
     /* Details how the buttons should be placed in relation to one another: */
@@ -105,11 +107,10 @@ VideoEditorHome::VideoEditorHome(const wxString & title, const wxPoint & pos, co
     SetSizer(MainSizer);  // Associate MainSizer with the frame
 
     AppLog = new ApplicationStatusLog();  // initialize app log
-    AppData = new DataContainer(AppLog);  // initialize app data structure object
+    AppData = new DataContainer(4, AppLog);  // initialize app data structure object
     AppWordListGenerator = new ApplicationWordListGenerator(AppLog);  // initialize word list
 
 }
-
 
 /**
  * Defines the behavior of the reset button from the options menu. When button is clicked, the
@@ -130,7 +131,6 @@ void VideoEditorHome::OnOptionReset(wxCommandEvent &event) {
 
 }
 
-
 /**
  * Defines the behavior of the about button from the options menu. When button is clicked,
  * a pop up with information about the app and developers appears.
@@ -142,7 +142,6 @@ void VideoEditorHome::OnOptionAbout(wxCommandEvent &event) {
 
 
 }
-
 
 /**
  * Defines the behavior of the help button from the options menu. When button is clicked,
@@ -164,10 +163,12 @@ void VideoEditorHome::OnOptionHelp(wxCommandEvent &event) {
 */
 void VideoEditorHome::OnOptionExit(wxCommandEvent &event) {
 
+    delete AppLog;
+    delete AppData;
+    delete AppWordListGenerator;
     Close(true);
 
 }
-
 
 /**
  * Defines the behavior of the run button. When button is clicked, a dialog prompts the user to
@@ -178,14 +179,17 @@ void VideoEditorHome::OnOptionExit(wxCommandEvent &event) {
  */
 void VideoEditorHome::OnExecute(wxCommandEvent &event) {
 
-    GaugeTimer(event);
+    LoadButton->Enable(wxFalse);
 
-    // TODO: Set words list in processor
-    // TODO: Get and set output file path and name.
-    // TODO: Call individual steps and log exit status.
+    // TODO: build output file components
+    GaugeTimer(event);
+    SaveDisplayedWords();
+
+    // TODO: Turn off gauge
+    // TODO: Activate LoadButton again
+
 
 }
-
 
 /**
  * Defines the behavior of the load button. When button is clicked, a script will record and validate
@@ -208,14 +212,15 @@ void VideoEditorHome::OnLoad(wxCommandEvent &event) {
         vector<string> current_words_list {AppWordListGenerator->get_new_list(word_count)};
         DisplayWords(current_words_list);
 
+        ExecuteButton->Enable(true);
+
     } else {
 
-        // TODO: Display popup error message.
+        // TODO: build a popup error display.
 
     }
 
 }
-
 
 /**
  * Initialize the different files browser/picker widgets.
@@ -241,7 +246,6 @@ void VideoEditorHome::CreatePickers() {
 
 }
 
-
 /**
  * Create a text box widget to display our 'word recommendations list'.
  */
@@ -252,7 +256,6 @@ void VideoEditorHome::CreateTextBox() {
     WordList->SetForegroundColour("#3C3642");
 
 }
-
 
 /**
  * Resets and initializes a new progress-gauge widget.
@@ -273,7 +276,6 @@ void VideoEditorHome::CreateGauge() {
 
 }
 
-
 /**
  * The intro file browser/picker widget are wrapped in static BoxSizers for aesthetic reasons.
  */
@@ -286,7 +288,6 @@ void VideoEditorHome::SetIntroFilePickerDesign(){
     IntroFileBox->Add(IntroPickerWrapperBox, 1, wxEXPAND | wxALL, 0);
 
 }
-
 
 /**
  * The background file browser/picker widget are wrapped in static BoxSizers for aesthetic reasons.
@@ -301,7 +302,6 @@ void VideoEditorHome::SetBackgroundFilePickerDesign() {
 
 }
 
-
 /**
  * The outro file browser/picker widget are wrapped in static BoxSizers for aesthetic reasons.
  */
@@ -315,7 +315,6 @@ void VideoEditorHome::SetOutroFilePickerDesign(){
 
 }
 
-
 /**
  * The audio file browser/picker widget are wrapped in static BoxSizers for aesthetic reasons.
  */
@@ -328,7 +327,6 @@ void VideoEditorHome::SetAudioFilePickerDesign() {
     AudioFileBox->Add(AudioPickerWrapperBox, 1, wxEXPAND | wxALL, 0);
 
 }
-
 
 /**
  * Reinitialize and update the file browser/picker widgets, wipe the old file pickers clean,
@@ -351,7 +349,6 @@ void VideoEditorHome::RecreatePickers() {
 
 }
 
-
 /**
  * Updates the MediaProcessor::intro_file_url attribute. On a successful update, the function simply exits. However,
  * if the attribute update failed for some reason - a error message is displayed.
@@ -363,7 +360,6 @@ void VideoEditorHome::OnIntroFileChange(wxFileDirPickerEvent& event) {
     AppData->set_input_file(static_cast<string>(event.GetPath()), INTRO_FILE);
 
 }
-
 
 /**
  * Updates the MediaProcessor::outro_file_url attribute. On a successful update, the function simply exits. However,
@@ -377,7 +373,6 @@ void VideoEditorHome::OnOutroFileChange(wxFileDirPickerEvent &event) {
 
 }
 
-
 /**
  * Updates the MediaProcessor::background_file_url attribute. On a successful update, the function simply exits. However,
  * if the attribute update failed for some reason - a error message is displayed.
@@ -390,7 +385,6 @@ void VideoEditorHome::OnBackgroundFileChange(wxFileDirPickerEvent &event) {
 
 }
 
-
 /**
  * Updates the MediaProcessor::audio_file_url attribute. On a successful update, the function simply exits. However,
  * if the attribute update failed for some reason - a error message is displayed.
@@ -402,7 +396,6 @@ void VideoEditorHome::OnAudioFileChange(wxFileDirPickerEvent &event) {
     AppData->set_input_file(static_cast<string>(event.GetPath()), AUDIO_FILE);
 
 }
-
 
 /**
  * When media files are being processed, this function helps keep the progress-gauge pulsing
@@ -430,7 +423,6 @@ void VideoEditorHome::GaugeTimer(wxCommandEvent& event) {
 
 }
 
-
 /**
  * If a timer is not active already, create one and make it tick.
  */
@@ -443,7 +435,6 @@ void VideoEditorHome::StartTimer() {
     ProgressGaugeTimer->Start(INTERVAL);
 
 }
-
 
 /**
  * If a timer is active, kill it.
@@ -459,7 +450,6 @@ void VideoEditorHome::StopTimer() {
 
 }
 
-
 /**
  * Use the wxGauge::Pulse() call to introduce movement (activity indication) within the progress-gauge widget.
  */
@@ -468,7 +458,6 @@ void VideoEditorHome::ProgressGaugePulse(wxTimerEvent& WXUNUSED(event)) {
     ProgressGauge->Pulse();
 
 }
-
 
 /**
  * Clear the current 'word recommendation list' text box widget, and create a fresh one to replace it.
@@ -497,5 +486,21 @@ void VideoEditorHome::DisplayWords(const vector<string> & word_list) {
     }
 
     AppLog->add("[SUCCESS] GUI text board populated with random words.");
+
+}
+
+void VideoEditorHome::SaveDisplayedWords() {
+
+    AppLog->add("WordList size: " + to_string(WordList->GetNumberOfLines()));
+
+    vector<string> updated_word_list (WordList->GetNumberOfLines(), "");
+
+    for (int i = 0; i < WordList->GetNumberOfLines(); ++i) {
+
+        updated_word_list.at(i) = static_cast<string>(WordList->GetLineText(i));
+
+    }
+
+    AppWordListGenerator->set_updated_list(updated_word_list);
 
 }
