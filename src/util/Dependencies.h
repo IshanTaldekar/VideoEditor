@@ -46,9 +46,13 @@ extern "C" {
 #include <iostream>
 #include <utility>
 #include <unordered_set>
+#include <unordered_map>
 #include <chrono>
 #include <random>
 #include <unistd.h>
+#include <algorithm>
+#include <functional>
+using std::pair;
 using std::string;
 using std::getline;
 using std::cout;
@@ -57,10 +61,12 @@ using std::ifstream;
 using std::endl;
 using std::vector;
 using std::move;
+using std::unordered_map;
 using std::unordered_set;
 using std::default_random_engine;
 using std::uniform_int_distribution;
 using std::chrono::system_clock;
 using std::to_string;
+using std::back_inserter;
 
 #endif //VIDEOEDITORAPP_DEPENDENCIES_H
