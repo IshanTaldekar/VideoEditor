@@ -14,7 +14,7 @@ ApplicationWordListGenerator::ApplicationWordListGenerator(ApplicationStatusLog*
     string input_word {};
 
     while(getline(input_file, input_word)) {
-    /* Build word list: */
+    /* Read words from text file: */
 
         words_list.push_back(input_word);
 
@@ -125,6 +125,22 @@ vector<long int> ApplicationWordListGenerator::get_random_index_list(int target_
 
     return index_list;
 
+}
+
+/**
+ * Update current list, add any previously unknown words to database.
+ *
+ * @param updated_list user updated word list.
+ */
+void ApplicationWordListGenerator::set_updated_list(vector<string> & updated_list) {
+
+    status_log->add("Saving user-modified word list.");
+
+    random_word_list = vector<string>();
+    move(updated_list.begin(), updated_list.end(), back_inserter(random_word_list));
+    verify_custom_list(updated_list);
+
+    status_log->add("[SUCCESS] Word list updated.");
 }
 
 const vector<string> &ApplicationWordListGenerator::get_current_list() {

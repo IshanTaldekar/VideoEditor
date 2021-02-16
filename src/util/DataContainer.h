@@ -8,10 +8,9 @@
 
 class DataContainer {
 
-    FileComponents* intro_file {nullptr};
-    FileComponents* background_file {nullptr};
-    FileComponents* outro_file {nullptr};
-    FileComponents* audio_file {nullptr};
+    unordered_map<int, int> file_code_maps_file_index;
+    vector<FileComponents*> input_files;
+    int input_files_count {};
     FileComponents* output_file {nullptr};
 
     const string scheme_prefix {"file.mp4"};
@@ -34,7 +33,7 @@ class DataContainer {
 
 public:
 
-    explicit DataContainer(ApplicationStatusLog* curr_log);
+    explicit DataContainer(int input_files_count, ApplicationStatusLog* curr_log);
     ~DataContainer();
 
     FileComponents* get_file_components(int file_code);
@@ -50,6 +49,7 @@ public:
     int get_rc_max_rate() const;
     int get_rc_min_rate() const;
     bool all_files_live();
+    int get_input_files_count() const;
 
     void set_input_file(const string & file_url, int file_code);
     void set_output_file_container(const string &);
@@ -62,7 +62,10 @@ public:
     void set_rc_buffer_size(int);
     void set_rc_max_rate(int);
     void set_rc_min_rate(int);
+
+private:
     void set_status_log(ApplicationStatusLog*);
+    void set_input_files_count(int InputFilesCount);
 
 };
 

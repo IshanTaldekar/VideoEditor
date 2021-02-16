@@ -9,24 +9,28 @@ class FileComponents {
     AVFormatContext* format_context {nullptr};
     AVCodec* codec {nullptr};
     AVCodecParameters* codec_parameters {nullptr};
-    AVStream* file_stream {nullptr};
+    vector<AVStream*> file_streams;
     AVCodecContext* codec_context {nullptr};
     int stream_index {};
+    vector<int> streams_list;
+    unsigned int streams_count {0};
     string url {};
     string filename {};
     long int duration {-1};
     bool file_live_flag {false};
     ApplicationStatusLog* status_log {nullptr};
+    int file_code {};
 
 public:
 
     FileComponents(const string & input_url, int file_code, ApplicationStatusLog* curr_log);
+    FileComponents(const string & input_url, int file_code, ApplicationStatusLog* curr_log, const vector<FileComponents*> & input_files);
     ~FileComponents();
 
     AVFormatContext* get_format_context();
     AVCodec* get_codec();
     AVCodecParameters* get_codec_parameters();
-    AVStream* get_stream();
+    vector<AVStream*> get_streams();
     AVCodecContext* get_codec_context();
     int get_stream_index() const;
     string get_url();
@@ -35,6 +39,11 @@ public:
     bool is_live() const;
     void set_filename(string filename);
     void set_status_log(ApplicationStatusLog* curr_log);
+    const vector<int> &get_streams_list() const;
+    void set_streams_list(const vector<int> &StreamsList);
+    unsigned int get_streams_count() const;
+    void set_streams_count(unsigned int StreamsCount);
+    int get_file_code() const;
 
 private:
 
@@ -46,7 +55,9 @@ private:
     void set_duration();
     void process_file(int file_code);
     bool extract_stream_information(int file_code);
-    void prepare_output_file();
+    void prepare_output_file(const vector<FileComponents*> & input_files);
+    void populate_output_stream_information(FileComponents* input_file, int & current_stream_index);
+    void set_file_code(int FileCode);
 
 };
 

@@ -1,61 +1,67 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "readability-use-anyofallof"
 #include "DataContainer.h"
 
-DataContainer::DataContainer(ApplicationStatusLog* curr_log) {
+DataContainer::DataContainer(int new_input_files_count, ApplicationStatusLog* curr_log) {
 
+    set_input_files_count(new_input_files_count);
     set_status_log(curr_log);
 
+    input_files.reserve(input_files_count);
+    file_code_maps_file_index.reserve(input_files_count);
 }
 
 /**
- * Cleaning up dynamically allocated memory.
+ * Cleaning up dynamically allocated objects.
  */
 DataContainer::~DataContainer() {
 
-    delete intro_file;
-    delete background_file;
-    delete outro_file;
-    delete audio_file;
+    for (auto & input_file : input_files) {
+
+        FileComponents* temp_file {input_file};
+        input_file = nullptr;
+
+        delete temp_file;
+
+    }
+
+    file_code_maps_file_index.clear();
     delete output_file;
 
 }
 
 /**
- * Set a file (pointed to by the file path) as one of the 5 file-types possible.
+ * Open and process input file at file path.
  *
  * @param file_url the file's path
- * @param file_code the type of file (INTRO_FILE, BACKGROUND_FILE, OUTRO_FILE, AUDIO_FILE, OUTPUT_FILE).
+ * @param file_code the type of file -> [INTRO_FILE, BACKGROUND_FILE, OUTRO_FILE, AUDIO_FILE, OUTPUT_FILE].
  */
 void DataContainer::set_input_file(const string & file_url, int file_code) {
 
-    switch(file_code) {
+    if (file_code == OUTPUT_FILE) {
 
-        case INTRO_FILE:
-            delete intro_file;
-            intro_file = new FileComponents(file_url, file_code, status_log);
-            break;
+        if (!all_files_live()) return;
 
-        case BACKGROUND_FILE:
-            delete background_file;
-            background_file = new FileComponents(file_url, file_code, status_log);
-            break;
+        delete output_file;
+        output_file = new FileComponents(file_url, file_code, status_log, input_files);
 
-        case OUTRO_FILE:
-            delete outro_file;
-            outro_file = new FileComponents(file_url, file_code, status_log);
-            break;
+    } else {
 
-        case AUDIO_FILE:
-            delete audio_file;
-            audio_file = new FileComponents(file_url, file_code, status_log);
-            break;
+        auto it{file_code_maps_file_index.find(file_code)};
 
-        case OUTPUT_FILE:
-            delete output_file;
-            output_file = new FileComponents(file_url, file_code, status_log);
-            break;
+        FileComponents *temp_file{nullptr};
 
-        default:
-            status_log->add("[ERROR] Unknown file code received.");
+        if (it != file_code_maps_file_index.end()) {
+
+            delete input_files.at(it->second);
+
+        } else {
+
+            file_code_maps_file_index.insert({file_code, static_cast<int>(input_files.size())});
+
+        }
+
+        input_files.push_back(new FileComponents(file_url, file_code, status_log));
 
     }
 
@@ -64,37 +70,17 @@ void DataContainer::set_input_file(const string & file_url, int file_code) {
 /**
  * Return the file components after processing the input file.
  *
- * @param file_code the type of file (INTRO_FILE, BACKGROUND_FILE, OUTRO_FILE, AUDIO_FILE, OUTPUT_FILE).
- * @return requested_component a FileComponent object (refer to FileComponent.h for more information).
+ * @param file_code the type of file -> [INTRO_FILE, BACKGROUND_FILE, OUTRO_FILE, AUDIO_FILE, OUTPUT_FILE].
+ * @return requested_component a FileComponent object (refer to FileComponent.h for more information) or nullptr if object doesn't exist.
  */
 FileComponents* DataContainer::get_file_components(int file_code) {
 
     FileComponents* requested_component {nullptr};
+    auto it {file_code_maps_file_index.find(file_code)};
 
-    switch(file_code) {
+    if (it != file_code_maps_file_index.end()) {
 
-        case INTRO_FILE:
-            requested_component = intro_file;
-            break;
-
-        case BACKGROUND_FILE:
-            requested_component = background_file;
-            break;
-
-        case OUTRO_FILE:
-            requested_component = outro_file;
-            break;
-
-        case AUDIO_FILE:
-            requested_component = audio_file;
-            break;
-
-        case OUTPUT_FILE:
-            requested_component = output_file;
-            break;
-
-        default:
-            status_log->add("[ERROR] Unknown file code requested.");
+        requested_component = input_files.at(it->second);
 
     }
 
@@ -108,13 +94,15 @@ FileComponents* DataContainer::get_file_components(int file_code) {
  */
 bool DataContainer::all_files_live() {
 
-    if (!intro_file || !background_file || !outro_file || !audio_file) {
+    if (static_cast<int>(input_files.size()) != get_input_files_count()) return false;
 
-        return false;
+    for (FileComponents* input_file: input_files) {
+
+        if (!input_file->is_live()) return false;
 
     }
 
-    return (intro_file->is_live() && background_file->is_live() && outro_file->is_live() && audio_file->is_live());
+    return true;
 
 }
 
@@ -249,3 +237,17 @@ void DataContainer::set_rc_min_rate(int new_rc_min_rate) {
     rc_min_rate = new_rc_min_rate;
 
 }
+
+int DataContainer::get_input_files_count() const {
+
+    return input_files_count;
+
+}
+
+void DataContainer::set_input_files_count(int InputFilesCount) {
+
+    input_files_count = InputFilesCount;
+
+}
+
+#pragma clang diagnostic pop

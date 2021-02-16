@@ -19,11 +19,14 @@ public:
 
     const vector<string> & get_current_list();
     const vector<string> & get_new_list(int word_count);
-    void verify_custom_list(const vector<string> & new_list);
+
+    void set_updated_list(vector<string> & updated_list);
 
 private:
 
     vector<long int> get_random_index_list(int count);
+    void verify_custom_list(const vector<string> & new_list);
+
 
 };
 

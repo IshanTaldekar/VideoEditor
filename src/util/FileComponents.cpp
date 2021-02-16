@@ -13,10 +13,28 @@ FileComponents::FileComponents(const string & input_url, int file_code, Applicat
     set_url(input_url);
     set_status_log(curr_log);
 
+    status_log->add("File component received input file @ (" + input_url + ")");
+
+    process_file(file_code);
+
+}
+
+FileComponents::FileComponents(const string & input_url, int file_code, ApplicationStatusLog* curr_log, const vector<FileComponents*> & input_files) {
+
+    set_url(input_url);
+    set_status_log(curr_log);
+
     status_log->add("File component received file @ (" + input_url + ")");
 
-    if (file_code == OUTPUT_FILE) prepare_output_file();
-    else process_file(file_code);
+    if (file_code == OUTPUT_FILE) {
+
+        prepare_output_file(input_files);
+
+    } else {
+
+        status_log->add("[ERROR] Unexpected file type.");
+
+    }
 
 }
 
@@ -30,7 +48,7 @@ FileComponents::~FileComponents(){
 
     codec = nullptr;
     codec_context = nullptr;
-    file_stream = nullptr;
+    file_streams.clear();
     codec_context = nullptr;
 
 }
@@ -86,6 +104,11 @@ void FileComponents::process_file(int file_code) {
  */
 bool FileComponents::extract_stream_information(int file_code) {
 
+    streams_count = format_context->nb_streams;
+
+    streams_list = vector<int>();
+    streams_list.reserve(streams_count);
+
     for (int i = 0; i < format_context->nb_streams; ++i) {
 
         AVCodecParameters* stream_codec_params {format_context->streams[i]->codecpar};
@@ -104,7 +127,7 @@ bool FileComponents::extract_stream_information(int file_code) {
             stream_index = i;
             set_codec(stream_codec);
             set_codec_parameters(stream_codec_params);
-            file_stream = format_context->streams[i];
+            file_streams.push_back(format_context->streams[i]);
 
             break;
 
@@ -140,9 +163,94 @@ bool FileComponents::extract_stream_information(int file_code) {
 /**
  * Construct an output file and populate the appropriate AV Structs.
  */
-void FileComponents::prepare_output_file() {
+void FileComponents::prepare_output_file(const vector<FileComponents*> & input_files) {
 
-    // TODO
+    avformat_alloc_output_context2(&format_context, nullptr, nullptr, url.c_str());
+
+    if (!format_context) {
+
+        status_log->add("[ERROR] FileComponents object failed to create output format context.");
+        return;
+
+    }
+
+    for (FileComponents* current_file: input_files) {
+
+        streams_count += current_file->get_streams_count();
+
+    }
+
+    stream_index = -1;
+    streams_list.reserve(streams_count);
+
+    for (FileComponents* current_file: input_files) {
+
+        populate_output_stream_information(current_file, stream_index);
+
+    }
+
+    av_dump_format(format_context, 0, url.c_str(), 1);
+
+    if (!(format_context->oformat->flags & AVFMT_NOFILE)) {
+
+        if ((avio_open(&format_context->pb, url.c_str(), AVIO_FLAG_WRITE)) < 0) {
+
+            status_log->add("[ERROR] FileComponents object could not open output file @(" + url + ")");
+            return;
+
+        }
+
+    }
+
+    AVDictionary* options {nullptr};  // needs to be populated if fragmented mp4 containers need to be supported.
+
+    if ((avformat_write_header(format_context, &options)) < 0) {
+
+        status_log->add("[ERROR] FileComponents object experienced an error when opening output file.");
+        return;
+
+    }
+
+
+}
+
+/**
+ *
+ * @param input_file
+ */
+void FileComponents::populate_output_stream_information(FileComponents* input_file, int & current_stream_index) {
+
+    for(int i = 0; i < input_file->get_format_context()->nb_streams; ++i) {
+
+        AVStream* new_output_stream {nullptr};
+        AVStream* input_stream {input_file->get_format_context()->streams[i]};
+        AVCodecParameters* input_codec_parameter {input_stream->codecpar};
+
+        if (input_codec_parameter->codec_type != input_file->get_codec_parameters()->codec_type) {
+
+            streams_list.at(i) = -1;
+            continue;
+
+        }
+
+        streams_list.at(i) = ++current_stream_index;
+        new_output_stream = avformat_new_stream(format_context, nullptr);
+
+        if (!new_output_stream) {
+
+            status_log->add("[ERROR] FileComponents object could not allocate output stream.");
+            return;
+
+        }
+
+        if (avcodec_parameters_copy(new_output_stream->codecpar, input_codec_parameter) < 0) {
+
+            status_log->add("[ERROR] FileComponents object failed to copy input codec parameters to output stream.");
+            return;
+
+        }
+
+    }
 
 }
 
@@ -165,9 +273,9 @@ AVCodecParameters* FileComponents::get_codec_parameters() {
 
 }
 
-AVStream* FileComponents::get_stream() {
+vector<AVStream*> FileComponents::get_streams() {
 
-    return file_stream;
+    return file_streams;
 
 }
 
@@ -248,7 +356,11 @@ void FileComponents::set_duration() {
 
     long duration_in_seconds {0};
 
-    duration_in_seconds += (file_stream->duration * file_stream->time_base.num) / (file_stream->time_base.den);
+    for (int i = 0; i < file_streams.size(); ++i) {
+
+        duration_in_seconds += (file_streams.at(i)->duration * file_streams.at(i)->time_base.num) / (file_streams.at(i)->time_base.den);
+
+    }
 
     duration = duration_in_seconds;
 
@@ -260,3 +372,38 @@ void FileComponents::set_status_log(ApplicationStatusLog* curr_log) {
 
 }
 
+const vector<int> &FileComponents::get_streams_list() const {
+
+    return streams_list;
+
+}
+
+void FileComponents::set_streams_list(const vector<int> &StreamsList) {
+
+    streams_list = StreamsList;
+
+}
+
+unsigned int FileComponents::get_streams_count() const {
+
+    return streams_count;
+
+}
+
+void FileComponents::set_streams_count(unsigned int StreamsCount) {
+
+    streams_count = StreamsCount;
+
+}
+
+int FileComponents::get_file_code() const {
+
+    return file_code;
+
+}
+
+void FileComponents::set_file_code(int FileCode) {
+
+    file_code = FileCode;
+
+}
