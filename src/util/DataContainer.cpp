@@ -1,5 +1,3 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "readability-use-anyofallof"
 #include "DataContainer.h"
 
 DataContainer::DataContainer(int new_input_files_count, ApplicationStatusLog* curr_log) {
@@ -36,13 +34,14 @@ DataContainer::~DataContainer() {
  * @param file_url the file's path
  * @param file_code the type of file -> [INTRO_FILE, BACKGROUND_FILE, OUTRO_FILE, AUDIO_FILE, OUTPUT_FILE].
  */
-void DataContainer::set_input_file(const string & file_url, int file_code) {
+void DataContainer::set_file(const string & file_url, int file_code) {
 
     if (file_code == OUTPUT_FILE) {
 
         if (!all_files_live()) return;
 
         delete output_file;
+        // string output_url {file_url + get_output_file_container()};
         output_file = new FileComponents(file_url, file_code, status_log, input_files);
 
     } else {
@@ -249,5 +248,3 @@ void DataContainer::set_input_files_count(int InputFilesCount) {
     input_files_count = InputFilesCount;
 
 }
-
-#pragma clang diagnostic pop

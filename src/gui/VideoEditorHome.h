@@ -30,6 +30,7 @@
 #include "../util/Dependencies.h"
 #include "../util/FileComponents.h"
 #include "../util/MediaProcessor.h"
+#include "../util/ProcessorTemplate1.h"
 
 class VideoEditorHome : public wxFrame {
 
@@ -42,6 +43,8 @@ private:
     ApplicationStatusLog* AppLog {nullptr};
     DataContainer* AppData {nullptr};
     ApplicationWordListGenerator * AppWordListGenerator {nullptr};
+
+    vector<string>  recommended_words;
 
     wxMenuBar *HomeMenuBar {nullptr};  // Drop-down menu bar.
     wxGauge* ProgressGauge {nullptr};  // Progression Gauge at the bottom of the screen.
@@ -98,7 +101,7 @@ private:
     void SetAudioFilePickerDesign();
     void CreateTextBox();
     void RecreateTextBox();
-    void DisplayWords(const vector<string> & current_word_list);
+    void DisplayWords();
     void SaveDisplayedWords();
 
     DECLARE_EVENT_TABLE()

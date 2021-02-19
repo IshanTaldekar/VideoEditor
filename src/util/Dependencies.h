@@ -52,6 +52,7 @@ extern "C" {
 #include <unistd.h>
 #include <algorithm>
 #include <functional>
+using std::max;
 using std::pair;
 using std::string;
 using std::getline;

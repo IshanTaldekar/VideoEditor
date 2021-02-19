@@ -11,8 +11,15 @@ public:
 
     MediaProcessor() = default;
 
-    FileComponents* extend_background_video(FileComponents* background_file, int duration);
-    void build_output_video(const vector<FileComponents*> & input_files, FileComponents* output_file);
+    virtual void build_output_video(const vector<FileComponents*> & input_files, FileComponents* output_file);
+    virtual void interrupt_processing();
+
+protected:
+
+    virtual void encode_output_video();
+    virtual void write_output_video();
+    virtual void prepare_audio_decoder();
+    virtual void encode_output_audio();
 
 
 };

@@ -139,7 +139,7 @@ void VideoEditorHome::OnOptionReset(wxCommandEvent &event) {
  */
 void VideoEditorHome::OnOptionAbout(wxCommandEvent &event) {
 
-
+    // TODO:
 
 }
 
@@ -151,7 +151,7 @@ void VideoEditorHome::OnOptionAbout(wxCommandEvent &event) {
  */
 void VideoEditorHome::OnOptionHelp(wxCommandEvent &event) {
 
-
+    // TODO:
 
 }
 
@@ -181,10 +181,12 @@ void VideoEditorHome::OnExecute(wxCommandEvent &event) {
 
     LoadButton->Enable(wxFalse);
 
-    // TODO: build output file components
+    AppData->set_file("test_output_file.mp4", OUTPUT_FILE);  // TODO: set output url through GUI
+
     GaugeTimer(event);
     SaveDisplayedWords();
 
+    // TODO: Process and write output file.
     // TODO: Turn off gauge
     // TODO: Activate LoadButton again
 
@@ -208,9 +210,9 @@ void VideoEditorHome::OnLoad(wxCommandEvent &event) {
         long audio_file_duration {audio_file->get_duration()};
 
         int word_count {static_cast<int>(audio_file_duration / seconds_between_words)};  // assumes that beat isn't very long
+        recommended_words = AppWordListGenerator->get_new_list(word_count);
 
-        vector<string> current_words_list {AppWordListGenerator->get_new_list(word_count)};
-        DisplayWords(current_words_list);
+        DisplayWords();
 
         ExecuteButton->Enable(true);
 
@@ -357,7 +359,7 @@ void VideoEditorHome::RecreatePickers() {
  */
 void VideoEditorHome::OnIntroFileChange(wxFileDirPickerEvent& event) {
 
-    AppData->set_input_file(static_cast<string>(event.GetPath()), INTRO_FILE);
+    AppData->set_file(static_cast<string>(event.GetPath()), INTRO_FILE);
 
 }
 
@@ -369,7 +371,7 @@ void VideoEditorHome::OnIntroFileChange(wxFileDirPickerEvent& event) {
  */
 void VideoEditorHome::OnOutroFileChange(wxFileDirPickerEvent &event) {
 
-    AppData->set_input_file(static_cast<string>(event.GetPath()), OUTRO_FILE);
+    AppData->set_file(static_cast<string>(event.GetPath()), OUTRO_FILE);
 
 }
 
@@ -381,7 +383,7 @@ void VideoEditorHome::OnOutroFileChange(wxFileDirPickerEvent &event) {
  */
 void VideoEditorHome::OnBackgroundFileChange(wxFileDirPickerEvent &event) {
 
-    AppData->set_input_file(static_cast<string>(event.GetPath()), BACKGROUND_FILE);
+    AppData->set_file(static_cast<string>(event.GetPath()), BACKGROUND_FILE);
 
 }
 
@@ -393,7 +395,7 @@ void VideoEditorHome::OnBackgroundFileChange(wxFileDirPickerEvent &event) {
  */
 void VideoEditorHome::OnAudioFileChange(wxFileDirPickerEvent &event) {
 
-    AppData->set_input_file(static_cast<string>(event.GetPath()), AUDIO_FILE);
+    AppData->set_file(static_cast<string>(event.GetPath()), AUDIO_FILE);
 
 }
 
@@ -473,13 +475,13 @@ void VideoEditorHome::RecreateTextBox() {
 
 }
 
-void VideoEditorHome::DisplayWords(const vector<string> & word_list) {
+void VideoEditorHome::DisplayWords() {
 
     AppLog->add("Displaying words to GUI text board.");
 
     WordList->Clear();
 
-    for (const string & current_word: word_list) {
+    for (const string & current_word: recommended_words) {
 
         WordList->AppendText(current_word + "\n");
 
@@ -491,15 +493,18 @@ void VideoEditorHome::DisplayWords(const vector<string> & word_list) {
 
 void VideoEditorHome::SaveDisplayedWords() {
 
-    AppLog->add("WordList size: " + to_string(WordList->GetNumberOfLines()));
+    AppLog->add("WordList size: " + to_string(WordList->GetNumberOfLines() - 1));
+    AppLog->add("Saving " + to_string(recommended_words.size()) + " words from WordList.");
 
-    vector<string> updated_word_list (WordList->GetNumberOfLines(), "");
+    vector<string> updated_word_list (recommended_words.size(), "");
 
-    for (int i = 0; i < WordList->GetNumberOfLines(); ++i) {
+    for (int i = 0; i < recommended_words.size(); ++i) {
 
         updated_word_list.at(i) = static_cast<string>(WordList->GetLineText(i));
 
     }
+
+    recommended_words = updated_word_list;
 
     AppWordListGenerator->set_updated_list(updated_word_list);
 

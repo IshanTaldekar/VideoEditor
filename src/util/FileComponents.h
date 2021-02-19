@@ -11,12 +11,12 @@ class FileComponents {
     AVCodecParameters* codec_parameters {nullptr};
     vector<AVStream*> file_streams;
     AVCodecContext* codec_context {nullptr};
-    int stream_index {};
+    int stream_index {-1};
     vector<int> streams_list;
     unsigned int streams_count {0};
     string url {};
     string filename {};
-    long int duration {-1};
+    long int duration {0};
     bool file_live_flag {false};
     ApplicationStatusLog* status_log {nullptr};
     int file_code {};
@@ -53,10 +53,10 @@ private:
     void set_codec_context(AVCodecContext* input_context);
     void set_url(string input_url);
     void set_duration();
-    void process_file(int file_code);
+    void process_input_file(int file_code);
     bool extract_stream_information(int file_code);
     void prepare_output_file(const vector<FileComponents*> & input_files);
-    void populate_output_stream_information(FileComponents* input_file, int & current_stream_index);
+    void populate_stream_information(FileComponents* input_file, int & current_stream_index);
     void set_file_code(int FileCode);
 
 };

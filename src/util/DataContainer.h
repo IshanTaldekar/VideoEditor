@@ -51,7 +51,7 @@ public:
     bool all_files_live();
     int get_input_files_count() const;
 
-    void set_input_file(const string & file_url, int file_code);
+    void set_file(const string & file_url, int file_code);
     void set_output_file_container(const string &);
     void set_output_media_codec(const string &);
     void set_output_codec_priv_key(const string &);

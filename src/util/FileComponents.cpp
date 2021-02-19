@@ -1,10 +1,9 @@
 #include "FileComponents.h"
 
 /**
- * Constructor sets target-file path. If the file is an input file type, then it processes the file's contents to build more information on
- * the file. Otherwise, it prepares an output file container.
+ * Constructor sets an input target-file path, and processes its contents to build more information on the file.
  *
- * @param input_url the target file path
+ * @param input_url the target file path.
  * @param file_code the file type being input (the value can be INTRO_FILE, BACKGROUND_FILE, OUTRO_FILE, AUDIO_FILE, or OUTPUT_FILE).
  * @param curr_log the application's log data structure.
  */
@@ -15,10 +14,18 @@ FileComponents::FileComponents(const string & input_url, int file_code, Applicat
 
     status_log->add("File component received input file @ (" + input_url + ")");
 
-    process_file(file_code);
+    process_input_file(file_code);
 
 }
 
+/**
+ * Constructor sets the output target-file path, and processes its contents to build more information on the file.
+ *
+ * @param input_url the target file path.
+ * @param file_code the file type being input (the value can be INTRO_FILE, BACKGROUND_FILE, OUTRO_FILE, AUDIO_FILE, or OUTPUT_FILE).
+ * @param curr_log the application's log data structure.
+ * @param input_files the inputs that make up the file at the file path.
+ */
 FileComponents::FileComponents(const string & input_url, int file_code, ApplicationStatusLog* curr_log, const vector<FileComponents*> & input_files) {
 
     set_url(input_url);
@@ -58,7 +65,7 @@ FileComponents::~FileComponents(){
  *
  * @param file_code the file type being input (the value can be INTRO_FILE, BACKGROUND_FILE, OUTRO_FILE, AUDIO_FILE, or OUTPUT_FILE).
  */
-void FileComponents::process_file(int file_code) {
+void FileComponents::process_input_file(int file_code) {
 
     avformat_free_context(format_context);
 
@@ -161,9 +168,11 @@ bool FileComponents::extract_stream_information(int file_code) {
 }
 
 /**
- * Construct an output file and populate the appropriate AV Structs.
+ * Construct an output file and populate the appropriate AVStructs.
  */
 void FileComponents::prepare_output_file(const vector<FileComponents*> & input_files) {
+
+    status_log->add("Preparing output file.");
 
     avformat_alloc_output_context2(&format_context, nullptr, nullptr, url.c_str());
 
@@ -183,9 +192,11 @@ void FileComponents::prepare_output_file(const vector<FileComponents*> & input_f
     stream_index = -1;
     streams_list.reserve(streams_count);
 
+    populate_stream_information(input_files.at(0), stream_index);
+
     for (FileComponents* current_file: input_files) {
 
-        populate_output_stream_information(current_file, stream_index);
+        populate_stream_information(current_file, stream_index);
 
     }
 
@@ -211,20 +222,24 @@ void FileComponents::prepare_output_file(const vector<FileComponents*> & input_f
 
     }
 
+    status_log->add("[SUCCESS] Output file ready.");
 
 }
 
 /**
+ * Go through the input file and initialize appropriate components in the output file.
  *
- * @param input_file
+ * @param input_file the input file being traversed.
+ * @param current_stream_index the smallest unused output stream index.
  */
-void FileComponents::populate_output_stream_information(FileComponents* input_file, int & current_stream_index) {
+void FileComponents::populate_stream_information(FileComponents* input_file, int & current_stream_index) {
 
     for(int i = 0; i < input_file->get_format_context()->nb_streams; ++i) {
 
         AVStream* new_output_stream {nullptr};
         AVStream* input_stream {input_file->get_format_context()->streams[i]};
         AVCodecParameters* input_codec_parameter {input_stream->codecpar};
+
 
         if (input_codec_parameter->codec_type != input_file->get_codec_parameters()->codec_type) {
 
@@ -233,7 +248,7 @@ void FileComponents::populate_output_stream_information(FileComponents* input_fi
 
         }
 
-        streams_list.at(i) = ++current_stream_index;
+        streams_list.push_back(++current_stream_index);
         new_output_stream = avformat_new_stream(format_context, nullptr);
 
         if (!new_output_stream) {
@@ -251,6 +266,25 @@ void FileComponents::populate_output_stream_information(FileComponents* input_fi
         }
 
     }
+
+}
+
+/**
+ * Compute the duration of the file in seconds.
+ */
+void FileComponents::set_duration() {
+
+    if (stream_index < 0) return;
+
+    long current_duration {0};
+
+    for (int i = 0; i < format_context->nb_streams; ++i) {
+
+        current_duration = max(current_duration, (file_streams.at(stream_index)->duration * file_streams.at(stream_index)->time_base.num) / (file_streams.at(stream_index)->time_base.den));
+
+    }
+
+    duration = current_duration;
 
 }
 
@@ -349,20 +383,6 @@ void FileComponents::set_url(string input_url) {
 void FileComponents::set_filename(string input_filename) {
 
     filename = move(input_filename);
-
-}
-
-void FileComponents::set_duration() {
-
-    long duration_in_seconds {0};
-
-    for (int i = 0; i < file_streams.size(); ++i) {
-
-        duration_in_seconds += (file_streams.at(i)->duration * file_streams.at(i)->time_base.num) / (file_streams.at(i)->time_base.den);
-
-    }
-
-    duration = duration_in_seconds;
 
 }
 

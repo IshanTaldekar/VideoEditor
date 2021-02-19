@@ -1,15 +1,21 @@
 #include "MediaProcessor.h"
 
-FileComponents* MediaProcessor::extend_background_video(FileComponents *background_file, int duration) {
-
-    // TODO
-
-    return nullptr;
+void MediaProcessor::interrupt_processing() {
 
 }
 
-void MediaProcessor::build_output_video(const vector<FileComponents *> &input_files, FileComponents *output_file) {
+void MediaProcessor::encode_output_video() {
 
-    // TODO
+}
+
+void MediaProcessor::write_output_video() {
+
+}
+
+void MediaProcessor::prepare_audio_decoder() {
+
+}
+
+void MediaProcessor::encode_output_audio() {
 
 }
